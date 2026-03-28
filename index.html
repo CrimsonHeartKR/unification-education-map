@@ -4,346 +4,351 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>2026 통일교육 체험학습 방문장소 DB</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
-:root { --navy: #1A3A5C; --blue: #2563EB; --teal: #0D9488; --green: #16A34A; --amber: #D97706; --red: #DC2626; --purple: #7C3AED; --bg: #F0F4F8; --card: #FFFFFF; --border: #CBD5E1; --muted: #64748B; --txt: #1E293B; --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 8px rgba(0,0,0,.06); --shadow-lg: 0 4px 16px rgba(0,0,0,.12); --r: 12px; }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; }
-.app-header { background: var(--navy); color: #fff; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.app-header h1 { font-size: 1.15rem; font-weight: 700; }
-.app-header .sub { font-size: .75rem; opacity: .65; margin-top: 2px; }
-.api-section { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-.api-status { font-size: .7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
-.api-ok { background: #16A34A22; color: #16A34A; }
-.api-wait { background: #D9770622; color: #D97706; }
-.layout { display: flex; height: calc(100vh - 60px); }
-.sidebar { width: 380px; min-width: 320px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-.map-area { flex: 1; position: relative; }
-#map { width: 100%; height: 100%; }
-.map-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #E2E8F0; color: var(--muted); font-size: .95rem; flex-direction: column; gap: .5rem; }
-.filter-bar { padding: .75rem 1rem; border-bottom: 1px solid var(--border); background: #F8FAFC; }
-.filter-row { display: flex; gap: .5rem; margin-bottom: .5rem; flex-wrap: wrap; }
-.filter-row:last-child { margin-bottom: 0; }
-.search-input { flex: 1; padding: .4rem .7rem; border: 1px solid var(--border); border-radius: 8px; font-size: .82rem; outline: none; min-width: 120px; }
-.search-input:focus { border-color: var(--blue); }
-.filter-select { padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 8px; font-size: .8rem; background: #fff; cursor: pointer; outline: none; }
-.stat-bar { display: flex; gap: .5rem; padding: .5rem 1rem; background: #F1F5F9; border-bottom: 1px solid var(--border); font-size: .75rem; color: var(--muted); align-items: center; }
-.stat-badge { padding: 2px 8px; border-radius: 10px; font-weight: 600; font-size: .7rem; }
-.place-list { flex: 1; overflow-y: auto; padding: .5rem; }
-.place-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: .8rem 1rem; margin-bottom: .5rem; cursor: pointer; transition: all .15s; }
-.place-card:hover { border-color: var(--blue); box-shadow: var(--shadow); }
-.place-card.active { border-color: var(--blue); background: #EFF6FF; box-shadow: var(--shadow); }
-.place-name { font-weight: 700; font-size: .92rem; margin-bottom: 4px; display: flex; align-items: center; gap: .4rem; }
-.place-addr { font-size: .78rem; color: var(--muted); margin-bottom: 4px; }
-.place-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
-.tag { padding: 2px 7px; border-radius: 6px; font-size: .68rem; font-weight: 600; }
-.tag-unity { background: #DBEAFE; color: #1D4ED8; }
-.tag-indep { background: #FEF3C7; color: #92400E; }
-.tag-war { background: #FEE2E2; color: #991B1B; }
-.tag-history { background: #D1FAE5; color: #065F46; }
-.tag-eco { background: #E0E7FF; color: #4338CA; }
-.detail-panel { display: none; position: absolute; top: 10px; right: 10px; width: 360px; max-height: calc(100% - 20px); background: var(--card); border-radius: var(--r); box-shadow: var(--shadow-lg); z-index: 100; overflow-y: auto; }
-.detail-panel.show { display: block; }
-.detail-header { padding: 1rem; border-bottom: 1px solid var(--border); }
-.detail-close { float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); }
-.detail-close:hover { color: var(--txt); }
-.detail-title { font-size: 1.05rem; font-weight: 700; margin-bottom: .3rem; }
-.detail-body { padding: 1rem; }
-.detail-row { display: flex; gap: .5rem; margin-bottom: .6rem; font-size: .82rem; }
-.detail-label { font-weight: 600; min-width: 70px; color: var(--muted); }
-.detail-value { flex: 1; }
-@media (max-width: 768px) {
-  .layout { flex-direction: column; height: auto; }
-  .sidebar { width: 100%; max-height: 50vh; }
-  .map-area { height: 50vh; }
-  .detail-panel { width: calc(100% - 20px); }
-  .app-header { padding: .75rem 1rem; }
-}
+:root{--navy:#1A3A5C;--blue:#2563EB;--teal:#0D9488;--green:#16A34A;--amber:#D97706;--red:#DC2626;--purple:#7C3AED;--bg:#F0F4F8;--card:#FFFFFF;--border:#CBD5E1;--muted:#64748B;--txt:#1E293B;--shadow:0 1px 3px rgba(0,0,0,.1),0 1px 8px rgba(0,0,0,.06);--shadow-lg:0 4px 16px rgba(0,0,0,.12);--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.app-header{background:var(--navy);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.app-header h1{font-size:1.15rem;font-weight:700}
+.app-header .sub{font-size:.75rem;opacity:.65;margin-top:2px}
+.api-section{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.api-status{font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.api-ok{background:#16A34A22;color:#16A34A}
+.api-wait{background:#D9770622;color:#D97706}
+.api-err{background:#DC262622;color:#DC2626}
+.data-status{font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.layout{display:flex;height:calc(100vh - 60px)}
+.sidebar{width:380px;min-width:320px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.map-area{flex:1;position:relative}
+#map{width:100%;height:100%}
+.map-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#E2E8F0;color:var(--muted);font-size:.95rem;flex-direction:column;gap:.5rem}
+.filter-bar{padding:.75rem 1rem;border-bottom:1px solid var(--border);background:#F8FAFC}
+.filter-row{display:flex;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap}
+.filter-row:last-child{margin-bottom:0}
+.search-input{flex:1;padding:.4rem .7rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;min-width:120px}
+.search-input:focus{border-color:var(--blue)}
+.filter-select{padding:.4rem .5rem;border:1px solid var(--border);border-radius:8px;font-size:.8rem;background:#fff;cursor:pointer;outline:none}
+.stat-bar{display:flex;gap:.5rem;padding:.5rem 1rem;background:#F1F5F9;border-bottom:1px solid var(--border);font-size:.75rem;color:var(--muted);align-items:center;flex-wrap:wrap}
+.stat-badge{padding:2px 8px;border-radius:10px;font-weight:600;font-size:.7rem}
+.place-list{flex:1;overflow-y:auto;padding:.5rem}
+.place-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:.5rem;cursor:pointer;transition:all .15s}
+.place-card:hover{border-color:var(--blue);box-shadow:var(--shadow)}
+.place-card.active{border-color:var(--blue);background:#EFF6FF;box-shadow:var(--shadow)}
+.place-name{font-weight:700;font-size:.92rem;margin-bottom:4px;display:flex;align-items:center;gap:.4rem}
+.place-addr{font-size:.78rem;color:var(--muted);margin-bottom:4px}
+.place-tags{display:flex;gap:.3rem;flex-wrap:wrap}
+.tag{padding:2px 7px;border-radius:6px;font-size:.68rem;font-weight:600}
+.tag-unity{background:#DBEAFE;color:#1D4ED8}
+.tag-indep{background:#FEF3C7;color:#92400E}
+.tag-war{background:#FEE2E2;color:#991B1B}
+.tag-history{background:#D1FAE5;color:#065F46}
+.tag-eco{background:#E0E7FF;color:#4338CA}
+.detail-panel{display:none;position:absolute;top:10px;right:10px;width:360px;max-height:calc(100% - 20px);background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:100;overflow-y:auto}
+.detail-panel.show{display:block}
+.detail-header{padding:1rem;border-bottom:1px solid var(--border)}
+.detail-close{float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted)}
+.detail-close:hover{color:var(--txt)}
+.detail-title{font-size:1.05rem;font-weight:700;margin-bottom:.3rem}
+.detail-body{padding:1rem}
+.detail-row{display:flex;gap:.5rem;margin-bottom:.6rem;font-size:.82rem}
+.detail-label{font-weight:600;min-width:70px;color:var(--muted)}
+.detail-value{flex:1}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:1rem}
+.loading-spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reload-btn{padding:6px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.78rem;cursor:pointer;font-weight:600}
+.reload-btn:hover{opacity:.9}
+@media(max-width:768px){.layout{flex-direction:column;height:auto}.sidebar{width:100%;max-height:50vh}.map-area{height:50vh}.detail-panel{width:calc(100% - 20px)}.app-header{padding:.75rem 1rem}}
 </style>
 </head>
 <body>
-<header class="app-header">
-  <div>
-    <h1>2026 통일교육 체험학습 방문장소 DB</h1>
-    <div class="sub">서울특별시교육청 학교통일교육 프로그램 | KAC 고려아카데미컨설팅</div>
-  </div>
-  <div class="api-section">
-    <span id="apiStatus" class="api-status api-wait">지도 로딩중...</span>
-  </div>
-</header>
-
-<div class="layout">
-  <aside class="sidebar">
-    <div class="filter-bar">
-      <div class="filter-row">
-        <input type="text" id="searchInput" class="search-input" placeholder="장소명 검색...">
-      </div>
-      <div class="filter-row">
-        <select id="regionFilter" class="filter-select"><option value="">전체 지역</option></select>
-        <select id="categoryFilter" class="filter-select">
-          <option value="">전체 카테고리</option>
-          <option value="통일·안보">통일·안보</option>
-          <option value="독립·민주화">독립·민주화</option>
-          <option value="전쟁·호국">전쟁·호국</option>
-          <option value="역사·문화">역사·문화</option>
-          <option value="생태·평화">생태·평화</option>
-        </select>
-        <select id="targetFilter" class="filter-select">
-          <option value="">전체 대상</option>
-          <option value="초">초등</option>
-          <option value="중">중등</option>
-          <option value="고">고등</option>
-        </select>
-      </div>
-    </div>
-    <div class="stat-bar">
-      <span id="statTotal"></span>
-      <span id="statFiltered"></span>
-    </div>
-    <div class="place-list" id="placeList"></div>
-  </aside>
-
-  <div class="map-area">
-    <div id="map">
-      <div class="map-placeholder" id="mapPlaceholder">
-        <div style="font-size:2rem">🗺️</div>
-        <div>지도를 불러오는 중입니다...</div>
-      </div>
-    </div>
-    <div class="detail-panel" id="detailPanel">
-      <div class="detail-header">
-        <button class="detail-close" onclick="closeDetail()">✕</button>
-        <div class="detail-title" id="detailTitle"></div>
-        <div class="place-tags" id="detailTags"></div>
-      </div>
-      <div class="detail-body" id="detailBody"></div>
-    </div>
-  </div>
+<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-spinner"></div>
+<div style="font-size:.9rem;color:var(--muted)">구글 스프레드시트에서 데이터를 불러오는 중...</div>
 </div>
-
+<header class="app-header">
+<div>
+<h1>2026 통일교육 체험학습 방문장소 DB</h1>
+<div class="sub">서울특별시교육청 학교통일교육 프로그램 | KAC 고려아카데미컨설팅</div>
+</div>
+<div class="api-section">
+<span id="dataStatus" class="data-status api-wait">데이터 로딩중...</span>
+<span id="apiStatus" class="api-status api-wait">지도 로딩중...</span>
+<button class="reload-btn" onclick="loadSheetData()" title="스프레드시트 데이터 새로고침">↻ 새로고침</button>
+</div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+<div class="filter-bar">
+<div class="filter-row">
+<input type="text" id="searchInput" class="search-input" placeholder="장소명 검색...">
+</div>
+<div class="filter-row">
+<select id="regionFilter" class="filter-select"><option value="">전체 지역</option></select>
+<select id="categoryFilter" class="filter-select">
+<option value="">전체 카테고리</option>
+<option value="통일·안보">통일·안보</option>
+<option value="독립·민주화">독립·민주화</option>
+<option value="전쟁·호국">전쟁·호국</option>
+<option value="역사·문화">역사·문화</option>
+<option value="생태·평화">생태·평화</option>
+</select>
+<select id="targetFilter" class="filter-select">
+<option value="">전체 대상</option>
+<option value="초">초등</option>
+<option value="중">중등</option>
+<option value="고">고등</option>
+</select>
+</div>
+</div>
+<div class="stat-bar">
+<span id="statTotal"></span>
+<span id="statFiltered"></span>
+<span id="statUpdate" style="margin-left:auto;font-size:.65rem;color:#94A3B8"></span>
+</div>
+<div class="place-list" id="placeList"></div>
+</aside>
+<div class="map-area">
+<div id="map">
+<div class="map-placeholder" id="mapPlaceholder">
+<div style="font-size:2rem">🗺️</div>
+<div>지도를 불러오는 중입니다...</div>
+</div>
+</div>
+<div class="detail-panel" id="detailPanel">
+<div class="detail-header">
+<button class="detail-close" onclick="closeDetail()">✕</button>
+<div class="detail-title" id="detailTitle"></div>
+<div class="place-tags" id="detailTags"></div>
+</div>
+<div class="detail-body" id="detailBody"></div>
+</div>
+</div>
+</div>
 <script>
-const PLACES = [
-{id:1, name:"전쟁기념관", region:"서울 용산", category:"전쟁·호국", target:"초·중·고", addr:"서울 용산구 이태원로 29", lat:37.5360, lng:126.9772, tel:"02-709-3139", desc:"6·25전쟁 및 호국전쟁 기록 전시, 옥외전시장에 각종 무기·장비 전시. 단체 교육프로그램 다수 운영.", hours:"09:30~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"대형버스 주차 가능", booking:"홈페이지 단체예약", url:"https://www.warmemo.or.kr"},
-{id:2, name:"국립중앙박물관", region:"서울 용산", category:"역사·문화", target:"초·중·고", addr:"서울 용산구 서빙고로 137", lat:37.5239, lng:126.9805, tel:"02-2077-9000", desc:"한국 역사·문화 종합 전시. 남북 문화 비교 교육 자료 활용 가능.", hours:"10:00~18:00(수·토 ~21:00)", closed:"1/1, 설·추석 당일", fee:"무료(상설)", parking:"대형버스 주차 가능", booking:"홈페이지 단체예약", url:"https://www.museum.go.kr"},
-{id:3, name:"백범김구기념관", region:"서울 용산", category:"독립·민주화", target:"초·중·고", addr:"서울 용산구 임정로 26", lat:37.5285, lng:126.9632, tel:"02-799-3400", desc:"김구 선생 일대기와 독립운동 역사 전시. 통일 염원의 상징적 장소.", hours:"10:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"대형버스 주차 가능", booking:"전화예약", url:"https://www.kimkoomuseum.org"},
-{id:4, name:"국립한글박물관", region:"서울 용산", category:"역사·문화", target:"초·중·고", addr:"서울 용산구 서빙고로 139", lat:37.5236, lng:126.9819, tel:"02-2124-6200", desc:"한글 역사·문화 전시. 남북 언어 차이 교육에 활용 가능.", hours:"10:00~18:00", closed:"1/1, 설·추석", fee:"무료", parking:"국립중앙박물관 공용", booking:"홈페이지", url:"https://www.hangeul.go.kr"},
-{id:5, name:"안중근의사기념관", region:"서울 중구", category:"독립·민주화", target:"초·중·고", addr:"서울 중구 소월로 91", lat:37.5530, lng:126.9841, tel:"02-3789-1016", desc:"안중근 의사의 독립운동 관련 유물·기록 전시.", hours:"10:00~17:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"남산공영주차장 이용", booking:"전화예약", url:"http://www.ahnjunggeun.or.kr"},
-{id:6, name:"남산 역사탐방로", region:"서울 중구", category:"역사·문화", target:"초·중·고", addr:"서울 중구 소월로 일대", lat:37.5512, lng:126.9828, tel:"", desc:"일제강점기 조선신궁터, 통감관저터 등 역사 현장 답사 코스.", hours:"상시", closed:"없음", fee:"무료", parking:"남산공영주차장", booking:"불필요", url:""},
-{id:7, name:"서대문형무소역사관", region:"서울 서대문", category:"독립·민주화", target:"초·중·고", addr:"서울 서대문구 통일로 251", lat:37.5721, lng:126.9607, tel:"02-360-8590", desc:"일제강점기 독립운동가 수감 역사 현장. 단체 체험프로그램 운영.", hours:"09:30~18:00(3~10월)", closed:"매주 월요일, 1/1", fee:"3,000원", parking:"대형버스 진입 가능", booking:"홈페이지 단체예약", url:"https://sphh.sscmc.or.kr"},
-{id:8, name:"국립대한민국임시정부기념관", region:"서울 서대문", category:"독립·민주화", target:"초·중·고", addr:"서울 서대문구 통일로 287", lat:37.5735, lng:126.9595, tel:"02-6370-3600", desc:"대한민국 임시정부 역사와 독립운동 종합 전시관.", hours:"10:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"인근 공영주차장", booking:"홈페이지", url:"https://www.kopgm.go.kr"},
-{id:9, name:"경교장", region:"서울 종로", category:"독립·민주화", target:"초·중·고", addr:"서울 종로구 새문안로 29", lat:37.5691, lng:126.9688, tel:"02-735-2038", desc:"대한민국임시정부 환국 후 청사. 김구 서거 장소.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"인근 유료주차장", booking:"불필요", url:""},
-{id:10, name:"대한민국역사박물관", region:"서울 종로", category:"역사·문화", target:"중·고", addr:"서울 종로구 세종대로 198", lat:37.5757, lng:126.9774, tel:"02-3703-9200", desc:"근현대사 종합 전시. 분단·통일 관련 상설전시 운영.", hours:"10:00~18:00(수·토 ~21:00)", closed:"1/1, 설·추석", fee:"무료", parking:"광화문 공영주차장(대형버스 불가)", booking:"홈페이지 단체예약", url:"https://www.much.go.kr"},
-{id:11, name:"서울역사박물관", region:"서울 종로", category:"역사·문화", target:"중·고", addr:"서울 종로구 새문안로 55", lat:37.5701, lng:126.9696, tel:"02-724-0274", desc:"서울 역사 전시. 서울의 근현대 변천사 교육자료 제공.", hours:"09:00~18:00(평일)/19:00(주말)", closed:"1/1, 설·추석", fee:"무료", parking:"경희궁 주차장", booking:"홈페이지 단체예약", url:"https://museum.seoul.go.kr"},
-{id:12, name:"국회헌정기념관", region:"서울 여의도", category:"역사·문화", target:"중·고", addr:"서울 영등포구 의사당대로 1", lat:37.5319, lng:126.9144, tel:"02-788-2076", desc:"대한민국 헌정사와 민주주의 발전 과정 전시.", hours:"09:00~18:00(월~금)", closed:"토·일·공휴일", fee:"무료", parking:"국회 내 주차 가능(사전신청)", booking:"전화예약", url:"https://museum.assembly.go.kr"},
-{id:13, name:"국립4·19민주묘지", region:"서울 강북", category:"독립·민주화", target:"중·고", addr:"서울 강북구 4.19로 8길 17", lat:37.6434, lng:127.0113, tel:"02-996-0419", desc:"4·19혁명 희생자 묘역. 민주주의 교육의 상징적 장소.", hours:"06:00~18:00", closed:"없음", fee:"무료", parking:"대형버스 주차 가능", booking:"불필요", url:""},
-{id:14, name:"4·19혁명기념관", region:"서울 강북", category:"독립·민주화", target:"중·고", addr:"서울 강북구 4.19로 8길 17", lat:37.6432, lng:127.0115, tel:"02-996-0419", desc:"4·19혁명 전시관. 민주화 과정 교육 자료 제공.", hours:"09:00~17:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"4·19묘지 주차장", booking:"전화예약", url:""},
-{id:15, name:"국립통일교육원", region:"서울 강북", category:"통일·안보", target:"중·고", addr:"서울 강북구 4.19로 123", lat:37.6445, lng:127.0109, tel:"02-901-7060", desc:"통일교육 전문기관. 학생 대상 통일교육 프로그램 운영.", hours:"09:00~18:00(평일)", closed:"토·일·공휴일", fee:"무료", parking:"가능", booking:"홈페이지 사전신청", url:"https://www.uniedu.go.kr"},
-{id:16, name:"북한산 역사탐방(둘레길)", region:"서울 강북", category:"역사·문화", target:"중·고", addr:"서울 강북구 삼양로 181길 일대", lat:37.6593, lng:127.0101, tel:"02-909-0497", desc:"북한산 둘레길을 따라 역사유적 탐방. 자연 속 평화교육.", hours:"상시", closed:"없음", fee:"무료", parking:"국립공원 주차장", booking:"불필요", url:""},
-{id:17, name:"국립서울현충원", region:"서울 동작", category:"전쟁·호국", target:"초·중·고", addr:"서울 동작구 동작동 현충로 210", lat:37.5010, lng:126.9781, tel:"02-813-9625", desc:"순국선열·호국영령 묘역. 호국보훈 교육의 핵심 장소.", hours:"06:00~18:00(3~10월)", closed:"없음(현충탑 내부 화요일 휴관)", fee:"무료", parking:"대형버스 주차 가능", booking:"홈페이지 단체예약", url:"https://www.snmb.mil.kr"},
-{id:18, name:"효창공원(독립운동가 묘역)", region:"서울 용산", category:"독립·민주화", target:"초·중·고", addr:"서울 용산구 효창원로 177", lat:37.5396, lng:126.9612, tel:"", desc:"이봉창·윤봉길·백정기 의사 등 독립운동가 묘역. 임시정부 요인 안장지.", hours:"상시", closed:"없음", fee:"무료", parking:"공원 내 주차 가능", booking:"불필요", url:""},
-{id:19, name:"육군사관학교 박물관", region:"서울 노원", category:"전쟁·호국", target:"중·고", addr:"서울 노원구 화랑로 574", lat:37.6249, lng:127.0811, tel:"02-2197-0306", desc:"육군사관학교 역사와 6·25전쟁 관련 유물 전시. 사전 공문 허가 필수(2주 전).", hours:"10:00~16:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"사전허가 필요", booking:"공문 허가 필수(2주 전)", url:""},
-{id:20, name:"태릉·강릉(조선왕릉)", region:"서울 노원", category:"역사·문화", target:"중·고", addr:"서울 노원구 화랑로 681", lat:37.6274, lng:127.0901, tel:"02-972-0370", desc:"조선왕릉 세계유산. 9기의 왕릉.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"1,000원", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:21, name:"서울통일관", region:"서울 마포", category:"통일·안보", target:"초·중·고", addr:"서울 마포구 통일로 92", lat:37.5595, lng:126.9560, tel:"02-713-8003", desc:"통일부 운영. 북한 실상 전시 및 통일 체험 프로그램. 가상 북한여행 VR 체험.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"인근 공영주차장", booking:"홈페이지 사전신청", url:"https://seoultongil.com"},
-{id:22, name:"북한자료센터", region:"서울 종로", category:"통일·안보", target:"중·고", addr:"서울 종로구 세종대로 209 정부서울청사", lat:37.5744, lng:126.9762, tel:"02-2100-5959", desc:"통일부 운영. 북한 관련 문헌·영상·물품 자료실. 북한영화 상영, 북한위성TV 시청 가능.", hours:"09:00~18:00(월~금)", closed:"토·일·공휴일", fee:"무료", parking:"정부청사 지하주차장", booking:"불필요", url:""},
-{id:23, name:"독립문", region:"서울 서대문", category:"독립·민주화", target:"초·중·고", addr:"서울 서대문구 통일로 251 독립공원", lat:37.5724, lng:126.9605, tel:"", desc:"1897년 건립. 자주독립 의지의 상징. 서대문형무소 인접.", hours:"상시", closed:"없음", fee:"무료", parking:"서대문형무소 주차장", booking:"불필요", url:""},
-{id:30, name:"임진각 국민관광지", region:"경기 파주", category:"통일·안보", target:"초·중·고", addr:"경기 파주시 문산읍 임진각로 148-53", lat:37.8887, lng:126.7404, tel:"031-953-4744", desc:"자유의 다리, 망배단, 평화의 종 등. 분단 현실 체험의 대표 장소.", hours:"상시(전시관 09:00~18:00)", closed:"없음", fee:"무료(일부 시설 유료)", parking:"대형버스 주차장 완비", booking:"불필요", url:""},
-{id:31, name:"평화누리공원", region:"경기 파주", category:"생태·평화", target:"초·중·고", addr:"경기 파주시 문산읍 임진각로 148-53", lat:37.8875, lng:126.7380, tel:"031-953-4744", desc:"임진각 내 평화 테마 공원. 바람의 언덕, 평화 조형물. 야외 평화교육 가능.", hours:"상시", closed:"없음", fee:"무료", parking:"임진각 주차장 공용", booking:"불필요", url:""},
-{id:32, name:"제3땅굴", region:"경기 파주", category:"통일·안보", target:"중·고", addr:"경기 파주시 군내면 제3땅굴로 210-358", lat:37.9350, lng:126.6700, tel:"031-954-0303", desc:"1978년 발견 북한 굴착 땅굴. 서울 52km 지점. 안보관광 필수 코스. 신분증 필수.", hours:"09:00~16:00(화~일)", closed:"매주 월요일", fee:"3,000원", parking:"주차 가능", booking:"안보관광 통합예약(stour.ticketplay.zone)", url:"https://stour.ticketplay.zone"},
-{id:33, name:"도라전망대", region:"경기 파주", category:"통일·안보", target:"중·고", addr:"경기 파주시 군내면 도라산로 190", lat:37.9470, lng:126.6700, tel:"031-954-0303", desc:"서부전선 최북단 전망대. 개성공단·송악산·북한 마을 조망. 신분증 필수.", hours:"09:00~17:00(화~일)", closed:"매주 월요일", fee:"500원", parking:"주차 가능", booking:"안보관광 통합예약", url:""},
-{id:34, name:"도라산역", region:"경기 파주", category:"통일·안보", target:"초·중·고", addr:"경기 파주시 군내면 통일촌로 307", lat:37.9471, lng:126.6619, tel:"031-953-4744", desc:"남측 경의선 최북단 역. '서울 방향이 아닌 평양 방향' 표지판으로 유명.", hours:"09:00~17:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"주차 가능", booking:"안보관광 통합예약", url:""},
-{id:35, name:"오두산통일전망대", region:"경기 파주", category:"통일·안보", target:"초·중·고", addr:"경기 파주시 탄현면 필승로 369", lat:37.7605, lng:126.7210, tel:"031-956-9600", desc:"한강·임진강 합류 지점. 해발 118m 전망대에서 북한 황해북도 조망.", hours:"09:00~17:30(3~10월)", closed:"매주 월요일", fee:"3,000원", parking:"대형버스 주차 가능", booking:"전화예약(단체)", url:""},
-{id:36, name:"캠프그리브스", region:"경기 파주", category:"통일·안보", target:"중·고", addr:"경기 파주시 군내면 적십자로 137", lat:37.9200, lng:126.7100, tel:"031-8008-4530", desc:"미군 반환 기지 리모델링. 안보·평화 체험 숙박시설. 2~3주 전 예약 필수.", hours:"사전예약제", closed:"월요일", fee:"프로그램별 상이", parking:"대형버스 가능", booking:"경기관광공사 예약(2~3주 전)", url:""},
-{id:37, name:"도라산평화공원", region:"경기 파주", category:"생태·평화", target:"초·중·고", addr:"경기 파주시 군내면 도라산로", lat:37.9480, lng:126.6750, tel:"", desc:"DMZ 평화의 길 파주 코스 포함. 평화 염원 조형물과 생태 관찰.", hours:"사전예약제", closed:"비정기", fee:"무료", parking:"주차 가능", booking:"DMZ 평화의길 예약", url:""},
-{id:40, name:"한반도통일미래센터", region:"경기 연천", category:"통일·안보", target:"초·중·고", addr:"경기 연천군 연천읍 통일로 4208", lat:38.0963, lng:127.0689, tel:"031-839-7946", desc:"통일부 운영 체험연수시설. 통일·평화 교육 프로그램 전문. 숙박 가능.", hours:"09:00~18:00", closed:"월요일", fee:"프로그램별 상이", parking:"대형버스 가능", booking:"홈페이지 사전신청", url:"https://unifuture.unikorea.go.kr"},
-{id:41, name:"태풍전망대", region:"경기 연천", category:"통일·안보", target:"중·고", addr:"경기 연천군 중면 적골로 195", lat:38.1200, lng:127.0500, tel:"", desc:"중부전선 최북단 전망대. 북한 초소·마을 육안 관찰 가능. 신분증 필수.", hours:"09:00~17:00", closed:"월요일·우천시", fee:"무료", parking:"주차 가능", booking:"안보관광 통합예약", url:""},
-{id:42, name:"호로고루(고구려성곽)", region:"경기 연천", category:"역사·문화", target:"중·고", addr:"경기 연천군 장남면 원당리 1258", lat:38.0640, lng:126.9550, tel:"", desc:"고구려 군사시설. 삼국시대 접경 역사 교육. 1·21침투로 인근.", hours:"상시", closed:"없음", fee:"무료", parking:"소규모 주차장", booking:"불필요", url:""},
-{id:43, name:"연천 전곡선사박물관", region:"경기 연천", category:"역사·문화", target:"초·중", addr:"경기 연천군 전곡읍 평화로 443번길 2", lat:38.0059, lng:127.0613, tel:"031-830-5600", desc:"전곡리 구석기 유적. 인류 역사 교육. 체험 프로그램 운영.", hours:"10:00~18:00(화~일)", closed:"매주 월요일", fee:"4,000원", parking:"대형버스 가능", booking:"홈페이지 단체예약", url:"https://www.jgpm.gg.go.kr"},
-{id:44, name:"1·21침투로", region:"경기 연천", category:"통일·안보", target:"중·고", addr:"경기 연천군 장남면 일대", lat:38.0700, lng:126.9600, tel:"", desc:"1968년 김신조 무장공비 침투 경로. DMZ 평화의 길 연천 코스.", hours:"사전예약제", closed:"비정기", fee:"무료", parking:"소규모", booking:"DMZ 평화의길 예약", url:""},
-{id:50, name:"애기봉평화생태공원", region:"경기 김포", category:"통일·안보", target:"초·중·고", addr:"경기 김포시 월곶면 평화공원로 289", lat:37.7378, lng:126.6450, tel:"031-989-7492", desc:"한강 하구에서 북한 황해북도 조망. 평화생태전시관·전망대 운영.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"대형버스 가능", booking:"홈페이지 예약", url:""},
-{id:51, name:"문수산성", region:"경기 김포", category:"역사·문화", target:"중·고", addr:"경기 김포시 월곶면 문수산성길", lat:37.7300, lng:126.6300, tel:"", desc:"병인양요 격전지. 조선시대 국방 역사 교육.", hours:"상시", closed:"없음", fee:"무료", parking:"소규모 주차장", booking:"불필요", url:""},
-{id:52, name:"한강하구 평화누리길", region:"경기 김포", category:"생태·평화", target:"초·중·고", addr:"경기 김포시 월곶면 일대", lat:37.7350, lng:126.6500, tel:"", desc:"한강 하구 접경지역 도보 코스. 생태·평화 체험.", hours:"상시", closed:"없음", fee:"무료", parking:"애기봉 주차장 활용", booking:"불필요", url:""},
-{id:55, name:"행주산성", region:"경기 고양", category:"전쟁·호국", target:"초·중·고", addr:"경기 고양시 덕양구 행주로 15번길 89", lat:37.6050, lng:126.8220, tel:"031-961-2560", desc:"행주대첩 역사 현장. 호국 정신 교육. 행주산성역사관 운영.", hours:"09:00~18:00", closed:"없음", fee:"무료", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:56, name:"일산호수공원", region:"경기 고양", category:"역사·문화", target:"초·중·고", addr:"경기 고양시 일산동구 호수로 731", lat:37.6690, lng:126.7700, tel:"031-909-9000", desc:"생태 교육 및 역사·문화 탐방 가능. 넓은 야외 학습 공간.", hours:"상시", closed:"없음", fee:"무료", parking:"대형버스 주차 가능", booking:"불필요", url:""},
-{id:57, name:"장항습지생태관", region:"경기 고양", category:"생태·평화", target:"초·중·고", addr:"경기 고양시 덕양구 행주로 30", lat:37.5990, lng:126.8160, tel:"", desc:"한강 하구 장항습지 생태 교육. DMZ 평화의 길 고양 코스.", hours:"사전예약제", closed:"비정기", fee:"무료", parking:"행주산성 주차장 활용", booking:"DMZ 평화의길 예약", url:""},
-{id:60, name:"수원 화성(유네스코 세계유산)", region:"경기 수원", category:"역사·문화", target:"초·중·고", addr:"경기 수원시 팔달구 정조로 825", lat:37.2872, lng:127.0116, tel:"031-290-3600", desc:"정조의 개혁정신. 유네스코 세계유산. 화성행궁 대형버스 불가 → 연무대 공영주차장 이용(도보 15~20분).", hours:"09:00~18:00(3~10월)", closed:"1/1", fee:"1,000원", parking:"연무대 공영주차장(031-251-4518)", booking:"불필요", url:""},
-{id:61, name:"수원화성박물관", region:"경기 수원", category:"역사·문화", target:"초·중·고", addr:"경기 수원시 팔달구 창룡대로 21", lat:37.2835, lng:127.0191, tel:"031-228-4242", desc:"수원 화성 축성 역사와 정조 개혁 전시.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"2,000원", parking:"인근 주차장", booking:"홈페이지 단체예약", url:""},
-{id:62, name:"죽미령 평화공원(스미스부대 기념)", region:"경기 오산", category:"전쟁·호국", target:"초·중·고", addr:"경기 오산시 경기대로 140", lat:37.1500, lng:127.0702, tel:"031-378-3476", desc:"6·25전쟁 최초 미·북한군 교전지. 스미스부대 전투 기념.", hours:"상시(전시관 09:00~18:00)", closed:"월요일", fee:"무료", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:65, name:"한국민속촌", region:"경기 용인", category:"역사·문화", target:"초·중", addr:"경기 용인시 기흥구 민속촌로 90", lat:37.2591, lng:127.1202, tel:"031-288-0000", desc:"전통 생활문화 재현. 남북 전통문화 비교 교육 활용. 단체식당 200명 수용.", hours:"09:30~18:00", closed:"없음(연중무휴)", fee:"20,000원(단체 할인)", parking:"대형버스 주차 가능", booking:"전화예약(단체)", url:"https://www.koreanfolk.co.kr"},
-{id:66, name:"경기도박물관", region:"경기 용인", category:"역사·문화", target:"초·중·고", addr:"경기 용인시 기흥구 상갈로 6", lat:37.2859, lng:127.1150, tel:"031-288-5300", desc:"경기도 역사·문화 종합 전시. 경기도 역사 교육 자료 제공.", hours:"10:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"대형버스 가능", booking:"홈페이지", url:""},
-{id:67, name:"경기도어린이박물관", region:"경기 용인", category:"역사·문화", target:"초", addr:"경기 용인시 기흥구 상갈로 6", lat:37.2855, lng:127.1145, tel:"031-270-8600", desc:"어린이 대상 체험형 박물관. 초등학생 눈높이 교육.", hours:"10:00~18:00(화~일)", closed:"매주 월요일", fee:"4,000원", parking:"경기도박물관 공용", booking:"홈페이지 사전예약", url:""},
-{id:70, name:"남한산성(유네스코 세계유산)", region:"경기 광주", category:"역사·문화", target:"중·고", addr:"경기 광주시 남한산성면 남한산성로 731", lat:37.4783, lng:127.1792, tel:"031-743-6610", desc:"병자호란 항쟁 역사. 유네스코 세계유산. 국난 극복 교육.", hours:"상시(행궁 10:00~17:00)", closed:"행궁 월요일 휴관", fee:"2,000원(행궁)", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:71, name:"남한산성 역사관", region:"경기 광주", category:"역사·문화", target:"중·고", addr:"경기 광주시 남한산성면 남한산성로 731", lat:37.4785, lng:127.1790, tel:"031-746-2814", desc:"남한산성 축성 역사와 병자호란 관련 전시.", hours:"10:00~17:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"남한산성 주차장", booking:"불필요", url:""},
-{id:75, name:"다산 정약용 유적지", region:"경기 남양주", category:"역사·문화", target:"초·중·고", addr:"경기 남양주시 조안면 다산로 747번길 11", lat:37.4979, lng:127.1660, tel:"031-590-2837", desc:"정약용 선생 생가·묘소. 실학정신 교육.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:76, name:"구리 동구릉", region:"경기 구리", category:"역사·문화", target:"초·중·고", addr:"경기 구리시 동구릉로 197", lat:37.6173, lng:127.1306, tel:"031-563-2909", desc:"조선왕릉 세계유산. 9기의 왕릉.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"1,000원", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:77, name:"하남 이성산성 역사공원", region:"경기 하남", category:"역사·문화", target:"초·중·고", addr:"경기 하남시 춘궁동 산23", lat:37.5250, lng:127.2000, tel:"", desc:"삼국시대 군사 요충지. 한강 유역 쟁탈전 역사 교육.", hours:"상시", closed:"없음", fee:"무료", parking:"소규모 주차장", booking:"불필요", url:""},
-{id:80, name:"여주 영릉(세종대왕릉)", region:"경기 여주", category:"역사·문화", target:"초·중·고", addr:"경기 여주시 능서면 영릉로 269-50", lat:37.3131, lng:127.6114, tel:"031-880-4700", desc:"세종대왕 릉. 한글 창제 정신과 통일 언어 교육 연계.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"500원", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:81, name:"세종대왕역사문화관", region:"경기 여주", category:"역사·문화", target:"초·중·고", addr:"경기 여주시 능서면 영릉로 269-10", lat:37.3128, lng:127.6110, tel:"031-885-3127", desc:"세종대왕 업적 전시. 한글·과학 등 문화 교육.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"영릉 주차장 공용", booking:"불필요", url:""},
-{id:82, name:"이천 세계도자기센터(설봉공원)", region:"경기 이천", category:"역사·문화", target:"초·중·고", addr:"경기 이천시 경충대로 2697번길 263", lat:37.2801, lng:127.4350, tel:"031-631-6501", desc:"한국 도자 문화 전시·체험. 전통문화 교육.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"프로그램별 상이", parking:"대형버스 가능", booking:"전화예약(단체)", url:""},
-{id:85, name:"안성 3·1운동 기념관", region:"경기 안성", category:"독립·민주화", target:"초·중·고", addr:"경기 안성시 원곡면 만세로 868", lat:37.0024, lng:127.2100, tel:"031-678-2475", desc:"경기 최대 3·1운동 기념관. 독립운동 체험 프로그램.", hours:"09:00~18:00(화~일)", closed:"매주 월요일", fee:"무료", parking:"대형버스 가능", booking:"전화예약(단체)", url:""},
-{id:86, name:"평택 6·25 전적지·평화공원", region:"경기 평택", category:"전쟁·호국", target:"초·중·고", addr:"경기 평택시 일대", lat:36.9930, lng:127.0870, tel:"", desc:"6·25전쟁 격전지 기념 공원. 호국 교육.", hours:"상시", closed:"없음", fee:"무료", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:90, name:"광명 가학광산 역사관(동굴)", region:"경기 광명", category:"역사·문화", target:"중·고", addr:"경기 광명시 가학로 85번길 142", lat:37.4265, lng:126.8810, tel:"02-2680-6607", desc:"일제강점기 자원수탈 역사 현장. 광산 동굴 체험.", hours:"09:00~18:00", closed:"매주 월요일", fee:"4,000원", parking:"대형버스 가능", booking:"홈페이지", url:""},
-{id:91, name:"안산 독립운동 역사길", region:"경기 안산", category:"독립·민주화", target:"중·고", addr:"경기 안산시 단원구 일대", lat:37.3198, lng:126.8303, tel:"", desc:"안산 지역 독립운동가 유적 탐방 코스.", hours:"상시", closed:"없음", fee:"무료", parking:"인근 공영주차장", booking:"불필요", url:""},
-{id:92, name:"시흥 갯골 생태공원", region:"경기 시흥", category:"생태·평화", target:"초·중·고", addr:"경기 시흥시 동서로 287", lat:37.3790, lng:126.8029, tel:"031-488-6900", desc:"내만 갯골 생태 체험. 자연 속 평화 교육.", hours:"10:00~17:30", closed:"매주 월요일", fee:"무료", parking:"대형버스 가능", booking:"홈페이지 예약", url:""},
-{id:95, name:"동두천 평화문화특구(소요산)", region:"경기 동두천", category:"역사·문화", target:"초·중", addr:"경기 동두천시 소요산로 일대", lat:37.9074, lng:127.0628, tel:"031-860-3031", desc:"미군 문화 특구와 소요산 자연 탐방. 평화·문화 복합 체험.", hours:"상시", closed:"없음", fee:"소요산 1,000원", parking:"소요산 주차장", booking:"불필요", url:""},
-{id:100, name:"독립기념관", region:"충남 천안", category:"독립·민주화", target:"초·중·고", addr:"충남 천안시 동남구 목천읍 독립기념관로 1", lat:36.7886, lng:127.1579, tel:"041-560-0114", desc:"독립운동 종합 교육기관. 7개 전시관, 체험관. 전국 최대 독립운동 교육시설.", hours:"09:30~17:00(3~10월)", closed:"매주 월요일", fee:"무료", parking:"대형버스 주차 가능(무료)", booking:"홈페이지 단체예약", url:"https://www.i815.or.kr"},
-{id:101, name:"판문점(JSA)", region:"경기 파주", category:"통일·안보", target:"고", addr:"경기 파주시 진서면 어룡리", lat:37.9562, lng:126.6773, tel:"", desc:"남북 군사분계선 공동경비구역. 가장 상징적 분단 현장. 사전예약·신분확인 필수.", hours:"사전예약제(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"지정 장소", booking:"판문점견학지원센터(www.panmuntour.go.kr)", url:"https://www.panmuntour.go.kr"},
-{id:102, name:"통일촌", region:"경기 파주", category:"통일·안보", target:"중·고", addr:"경기 파주시 군내면 통일촌로", lat:37.9400, lng:126.6800, tel:"", desc:"민통선 내 민간인 거주 마을. DMZ 안보관광 코스 포함.", hours:"안보관광 시간 내", closed:"월요일", fee:"무료", parking:"주차 가능", booking:"안보관광 통합예약", url:""},
-{id:103, name:"양구통일관", region:"강원 양구", category:"통일·안보", target:"초·중·고", addr:"강원 양구군 해안면 만대리 산 82", lat:38.2830, lng:128.0970, tel:"033-481-9021", desc:"강원도 대표 통일관. 북한 생활상 전시. DMZ 펀치볼 인근.", hours:"09:00~17:00(3~10월)", closed:"월요일·공휴일", fee:"무료", parking:"대형버스 가능", booking:"전화예약", url:""},
-{id:104, name:"고성 통일전망대", region:"강원 고성", category:"통일·안보", target:"초·중·고", addr:"강원 고성군 현내면 금강산로 481", lat:38.5872, lng:128.3696, tel:"033-682-0088", desc:"동해안 최북단 전망대. 금강산 조망. 통일안보교육장 운영.", hours:"09:00~16:00(3~10월)", closed:"없음(기상악화시 폐쇄)", fee:"3,000원", parking:"대형버스 가능", booking:"출입신고(통일전망대 누리집)", url:""},
-{id:105, name:"철원 노동당사", region:"강원 철원", category:"전쟁·호국", target:"중·고", addr:"강원 철원군 철원읍 관전리 4-3", lat:38.3128, lng:127.1345, tel:"033-450-5558", desc:"6·25전쟁 상흔이 남은 건물. 분단 현실 교육의 상징.", hours:"상시", closed:"없음", fee:"무료", parking:"대형버스 가능", booking:"불필요", url:""},
-{id:106, name:"철원 평화전망대", region:"강원 철원", category:"통일·안보", target:"중·고", addr:"강원 철원군 동송읍 태봉로 1825", lat:38.3071, lng:127.1345, tel:"033-450-5559", desc:"철원평야와 북한 지역 조망. 비무장지대 생태 관찰.", hours:"09:00~17:00", closed:"월요일", fee:"무료", parking:"대형버스 가능", booking:"철원군청 출입신청", url:""},
-{id:107, name:"부산통일관(자유회관)", region:"부산", category:"통일·안보", target:"초·중·고", addr:"부산 중구 대청로 126", lat:35.1041, lng:129.0339, tel:"051-463-3171", desc:"부산 지역 통일관. 북한 실상 전시 및 통일교육 프로그램.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"인근 공영주차장", booking:"전화예약", url:""},
-{id:108, name:"광주통일관", region:"광주", category:"통일·안보", target:"초·중·고", addr:"광주 서구 화정동 842", lat:35.1317, lng:126.8539, tel:"062-376-5445", desc:"광주 지역 통일관. 통일교육 체험 프로그램 운영.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"가능", booking:"전화예약", url:""},
-{id:109, name:"경남통일관", region:"경남 창원", category:"통일·안보", target:"초·중·고", addr:"경남 창원시 의창구 용지로 147번길 10", lat:35.2270, lng:128.6810, tel:"055-285-1391", desc:"경남 지역 통일관. 전시·체험·교육 프로그램 운영.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"가능", booking:"전화예약", url:""},
-{id:110, name:"제주통일관", region:"제주", category:"통일·안보", target:"초·중·고", addr:"제주 서귀포시 남원읍 일주동로 6325", lat:33.2935, lng:126.7093, tel:"064-764-4701", desc:"제주 지역 통일관. 북한 문화·생활 전시.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"가능", booking:"전화예약", url:""},
-{id:111, name:"대전통일관", region:"대전", category:"통일·안보", target:"초·중·고", addr:"대전 중구 보문로 262", lat:36.3249, lng:127.4267, tel:"042-527-0345", desc:"대전 지역 통일관. 통일교육 전시·체험.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"가능", booking:"전화예약", url:""},
-{id:112, name:"인천통일관", region:"인천", category:"통일·안보", target:"초·중·고", addr:"인천 중구 월미로 246", lat:37.4706, lng:126.5953, tel:"032-765-2670", desc:"인천 월미도 소재 통일관. 통일교육 및 북한 전시.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"월미도 주차장", booking:"전화예약", url:""},
-{id:113, name:"대구통일관", region:"대구", category:"통일·안보", target:"초·중·고", addr:"대구 동구 팔공산로 929", lat:35.9478, lng:128.6920, tel:"053-985-5050", desc:"대구 지역 통일관. 북한 생활상 전시·체험.", hours:"09:00~17:00(화~토)", closed:"일·월·공휴일", fee:"무료", parking:"가능", booking:"전화예약", url:""},
-];
+/* ===== 구글 스프레드시트 CSV 연동 설정 ===== */
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQy9GCEFg-htvt1PezHip-QDBTgCgwDfH-PzlhUwcq-wiELcsBMWMWdVgOLj5rFl9qeahFBejwGg7rX/pub?gid=389612217&single=true&output=csv';
+const KAKAO_API_KEY = 'be59efe600108faa0ba7fdbe71666b4a';
 
+let PLACES = [];
 let kakaoLoaded = false;
 let map = null;
 let markers = [];
 let infoWindows = [];
 let activePlace = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  populateRegionFilter();
-  renderList();
+/* ===== CSV 데이터 로드 ===== */
+function loadSheetData() {
+  document.getElementById('dataStatus').className = 'data-status api-wait';
+  document.getElementById('dataStatus').textContent = '데이터 로딩중...';
+
+  Papa.parse(SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      PLACES = results.data
+        .filter(row => row['ID'] && row['장소명'] && row['위도'] && row['경도'])
+        .map(row => ({
+          id: parseInt(row['ID']) || 0,
+          name: (row['장소명'] || '').trim(),
+          region: (row['지역'] || '').trim(),
+          category: (row['카테고리'] || '').trim(),
+          target: (row['대상'] || '').trim(),
+          addr: (row['주소'] || '').trim(),
+          lat: parseFloat(row['위도']) || 0,
+          lng: parseFloat(row['경도']) || 0,
+          tel: (row['전화번호'] || '').trim(),
+          desc: (row['설명'] || '').trim(),
+          hours: (row['운영시간'] || '').trim(),
+          closed: (row['휴관일'] || '').trim(),
+          fee: (row['입장료'] || '').trim(),
+          parking: (row['주차'] || '').trim(),
+          booking: (row['예약'] || '').trim(),
+          url: (row['홈페이지'] || '').trim()
+        }));
+
+      document.getElementById('dataStatus').className = 'data-status api-ok';
+      document.getElementById('dataStatus').textContent = 'DB ' + PLACES.length + '개소';
+      document.getElementById('statUpdate').textContent = '최종 갱신: ' + new Date().toLocaleString('ko-KR');
+      document.getElementById('loadingOverlay').style.display = 'none';
+
+      populateRegionFilter();
+      renderList();
+    },
+    error: function(err) {
+      document.getElementById('dataStatus').className = 'data-status api-err';
+      document.getElementById('dataStatus').textContent = '데이터 로드 실패';
+      document.getElementById('loadingOverlay').innerHTML = '<div style="text-align:center"><div style="font-size:2rem;margin-bottom:1rem">⚠️</div><div style="font-size:.9rem;color:#DC2626;margin-bottom:.5rem">스프레드시트 데이터를 불러오지 못했습니다</div><div style="font-size:.78rem;color:#64748B;margin-bottom:1rem">네트워크 연결을 확인해주세요</div><button class="reload-btn" onclick="location.reload()">다시 시도</button></div>';
+      console.error('CSV load error:', err);
+    }
+  });
+}
+
+/* ===== 초기화 ===== */
+document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('searchInput').addEventListener('input', renderList);
   document.getElementById('regionFilter').addEventListener('change', renderList);
   document.getElementById('categoryFilter').addEventListener('change', renderList);
   document.getElementById('targetFilter').addEventListener('change', renderList);
+  loadSheetData();
   initKakaoMap();
 });
 
+/* ===== 필터 ===== */
 function populateRegionFilter() {
-  const regions = [...new Set(PLACES.map(p => p.region))].sort();
-  const sel = document.getElementById('regionFilter');
-  regions.forEach(r => { const opt = document.createElement('option'); opt.value = r; opt.textContent = r; sel.appendChild(opt); });
+  var regions = [];
+  var seen = {};
+  PLACES.forEach(function(p) {
+    if (p.region && !seen[p.region]) { seen[p.region] = true; regions.push(p.region); }
+  });
+  regions.sort();
+  var sel = document.getElementById('regionFilter');
+  var current = sel.value;
+  sel.innerHTML = '<option value="">전체 지역</option>';
+  regions.forEach(function(r) {
+    var opt = document.createElement('option');
+    opt.value = r;
+    opt.textContent = r;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
 }
 
 function getFiltered() {
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  const region = document.getElementById('regionFilter').value;
-  const category = document.getElementById('categoryFilter').value;
-  const target = document.getElementById('targetFilter').value;
-  return PLACES.filter(p => {
-    if (q && !p.name.toLowerCase().includes(q) && !p.addr.toLowerCase().includes(q) && !p.desc.toLowerCase().includes(q)) return false;
+  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  var region = document.getElementById('regionFilter').value;
+  var category = document.getElementById('categoryFilter').value;
+  var target = document.getElementById('targetFilter').value;
+  return PLACES.filter(function(p) {
+    if (q && p.name.toLowerCase().indexOf(q) === -1 && p.addr.toLowerCase().indexOf(q) === -1 && p.desc.toLowerCase().indexOf(q) === -1) return false;
     if (region && p.region !== region) return false;
     if (category && p.category !== category) return false;
-    if (target && !p.target.includes(target)) return false;
+    if (target && p.target.indexOf(target) === -1) return false;
     return true;
   });
 }
 
 function getCategoryTag(cat) {
-  const m = {'통일·안보':'tag-unity','독립·민주화':'tag-indep','전쟁·호국':'tag-war','역사·문화':'tag-history','생태·평화':'tag-eco'};
+  var m = {'통일·안보':'tag-unity','독립·민주화':'tag-indep','전쟁·호국':'tag-war','역사·문화':'tag-history','생태·평화':'tag-eco'};
   return m[cat] || 'tag-history';
 }
 
+/* ===== 목록 렌더링 ===== */
 function renderList() {
-  const filtered = getFiltered();
-  const listEl = document.getElementById('placeList');
-  const total = PLACES.length;
-  document.getElementById('statTotal').textContent = `전체 ${total}개소`;
-  document.getElementById('statFiltered').innerHTML = filtered.length < total ? `<span class="stat-badge" style="background:#DBEAFE;color:#1D4ED8">필터 결과: ${filtered.length}개</span>` : '';
-  listEl.innerHTML = filtered.map(p => `
-    <div class="place-card ${activePlace === p.id ? 'active' : ''}" onclick="selectPlace(${p.id})" id="card-${p.id}">
-      <div class="place-name"><span class="tag ${getCategoryTag(p.category)}">${p.category}</span> ${p.name}</div>
-      <div class="place-addr">${p.addr}</div>
-      <div class="place-tags">
-        <span class="tag" style="background:#F1F5F9;color:#475569">${p.region}</span>
-        <span class="tag" style="background:#F0FDF4;color:#166534">${p.target}</span>
-        ${p.fee === '무료' ? '<span class="tag" style="background:#ECFDF5;color:#059669">무료</span>' : ''}
-      </div>
-    </div>
-  `).join('');
+  var filtered = getFiltered();
+  var listEl = document.getElementById('placeList');
+  var total = PLACES.length;
+  document.getElementById('statTotal').textContent = '전체 ' + total + '개소';
+  document.getElementById('statFiltered').innerHTML = filtered.length < total
+    ? '<span class="stat-badge" style="background:#DBEAFE;color:#1D4ED8">필터 결과: ' + filtered.length + '개</span>' : '';
+  var html = '';
+  filtered.forEach(function(p) {
+    html += '<div class="place-card ' + (activePlace===p.id?'active':'') + '" onclick="selectPlace(' + p.id + ')" id="card-' + p.id + '">' +
+      '<div class="place-name"><span class="tag ' + getCategoryTag(p.category) + '">' + p.category + '</span> ' + p.name + '</div>' +
+      '<div class="place-addr">' + p.addr + '</div>' +
+      '<div class="place-tags">' +
+        '<span class="tag" style="background:#F1F5F9;color:#475569">' + p.region + '</span>' +
+        '<span class="tag" style="background:#F0FDF4;color:#166534">' + p.target + '</span>' +
+        (p.fee==='무료'?'<span class="tag" style="background:#ECFDF5;color:#059669">무료</span>':'') +
+      '</div></div>';
+  });
+  listEl.innerHTML = html;
   if (kakaoLoaded && map) updateMarkers(filtered);
 }
 
+/* ===== 장소 선택 ===== */
 function selectPlace(id) {
   activePlace = id;
-  const p = PLACES.find(x => x.id === id);
+  var p = null;
+  for (var i = 0; i < PLACES.length; i++) { if (PLACES[i].id === id) { p = PLACES[i]; break; } }
   if (!p) return;
   document.getElementById('detailTitle').textContent = p.name;
-  document.getElementById('detailTags').innerHTML = `
-    <span class="tag ${getCategoryTag(p.category)}">${p.category}</span>
-    <span class="tag" style="background:#F1F5F9;color:#475569">${p.region}</span>
-    <span class="tag" style="background:#F0FDF4;color:#166534">${p.target}</span>
-  `;
-  document.getElementById('detailBody').innerHTML = `
-    <div class="detail-row"><div class="detail-label">설명</div><div class="detail-value">${p.desc}</div></div>
-    <div class="detail-row"><div class="detail-label">주소</div><div class="detail-value">${p.addr}</div></div>
-    ${p.tel ? `<div class="detail-row"><div class="detail-label">전화</div><div class="detail-value"><a href="tel:${p.tel}">${p.tel}</a></div></div>` : ''}
-    ${p.hours ? `<div class="detail-row"><div class="detail-label">운영시간</div><div class="detail-value">${p.hours}</div></div>` : ''}
-    ${p.closed ? `<div class="detail-row"><div class="detail-label">휴관일</div><div class="detail-value">${p.closed}</div></div>` : ''}
-    ${p.fee ? `<div class="detail-row"><div class="detail-label">입장료</div><div class="detail-value">${p.fee}</div></div>` : ''}
-    ${p.parking ? `<div class="detail-row"><div class="detail-label">주차</div><div class="detail-value">${p.parking}</div></div>` : ''}
-    ${p.booking ? `<div class="detail-row"><div class="detail-label">예약</div><div class="detail-value">${p.booking}</div></div>` : ''}
-    ${p.url ? `<div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value"><a href="${p.url}" target="_blank">${p.url}</a></div></div>` : ''}
-    <div style="margin-top:.8rem;">
-      <a href="https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lng}" target="_blank" style="display:block;text-align:center;padding:.5rem;background:#FEE500;color:#191919;border-radius:8px;text-decoration:none;font-size:.82rem;font-weight:600">카카오맵에서 보기</a>
-    </div>
-  `;
+  document.getElementById('detailTags').innerHTML =
+    '<span class="tag ' + getCategoryTag(p.category) + '">' + p.category + '</span>' +
+    '<span class="tag" style="background:#F1F5F9;color:#475569">' + p.region + '</span>' +
+    '<span class="tag" style="background:#F0FDF4;color:#166534">' + p.target + '</span>';
+  var body = '<div class="detail-row"><div class="detail-label">설명</div><div class="detail-value">' + p.desc + '</div></div>' +
+    '<div class="detail-row"><div class="detail-label">주소</div><div class="detail-value">' + p.addr + '</div></div>';
+  if (p.tel) body += '<div class="detail-row"><div class="detail-label">전화</div><div class="detail-value"><a href="tel:' + p.tel + '">' + p.tel + '</a></div></div>';
+  if (p.hours) body += '<div class="detail-row"><div class="detail-label">운영시간</div><div class="detail-value">' + p.hours + '</div></div>';
+  if (p.closed) body += '<div class="detail-row"><div class="detail-label">휴관일</div><div class="detail-value">' + p.closed + '</div></div>';
+  if (p.fee) body += '<div class="detail-row"><div class="detail-label">입장료</div><div class="detail-value">' + p.fee + '</div></div>';
+  if (p.parking) body += '<div class="detail-row"><div class="detail-label">주차</div><div class="detail-value">' + p.parking + '</div></div>';
+  if (p.booking) body += '<div class="detail-row"><div class="detail-label">예약</div><div class="detail-value">' + p.booking + '</div></div>';
+  if (p.url) body += '<div class="detail-row"><div class="detail-label">홈페이지</div><div class="detail-value"><a href="' + p.url + '" target="_blank">' + p.url + '</a></div></div>';
+  body += '<div style="margin-top:.8rem"><a href="https://map.kakao.com/link/to/' + encodeURIComponent(p.name) + ',' + p.lat + ',' + p.lng + '" target="_blank" style="display:block;text-align:center;padding:.5rem;background:#FEE500;color:#191919;border-radius:8px;text-decoration:none;font-size:.82rem;font-weight:600">카카오맵에서 보기</a></div>';
+  document.getElementById('detailBody').innerHTML = body;
   document.getElementById('detailPanel').classList.add('show');
-  document.querySelectorAll('.place-card').forEach(c => c.classList.remove('active'));
-  const card = document.getElementById(`card-${id}`);
+  var cards = document.querySelectorAll('.place-card');
+  for (var j = 0; j < cards.length; j++) cards[j].classList.remove('active');
+  var card = document.getElementById('card-' + id);
   if (card) { card.classList.add('active'); card.scrollIntoView({behavior:'smooth',block:'nearest'}); }
-  if (kakaoLoaded && map) { map.setCenter(new kakao.maps.LatLng(p.lat, p.lng)); map.setLevel(4); }
+  if (kakaoLoaded && map) { map.setCenter(new kakao.maps.LatLng(p.lat,p.lng)); map.setLevel(4); }
 }
 
 function closeDetail() {
   document.getElementById('detailPanel').classList.remove('show');
   activePlace = null;
-  document.querySelectorAll('.place-card').forEach(c => c.classList.remove('active'));
+  var cards = document.querySelectorAll('.place-card');
+  for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
 }
 
+/* ===== 카카오맵 ===== */
 function initKakaoMap() {
-  const key = 'be59efe600108faa0ba7fdbe71666b4a';
-  const script = document.createElement('script');
-  script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${key}&autoload=false`;
-  script.onload = () => {
-    kakao.maps.load(() => {
+  var script = document.createElement('script');
+  script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KAKAO_API_KEY + '&autoload=false';
+  script.onload = function() {
+    kakao.maps.load(function() {
       kakaoLoaded = true;
       document.getElementById('mapPlaceholder').style.display = 'none';
       document.getElementById('apiStatus').className = 'api-status api-ok';
       document.getElementById('apiStatus').textContent = '지도 연결됨';
-      const container = document.getElementById('map');
-      map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.56, 126.98), level: 10 });
+      var container = document.getElementById('map');
+      map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.56,126.98), level: 10 });
       map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
       map.addControl(new kakao.maps.MapTypeControl(), kakao.maps.ControlPosition.TOPRIGHT);
-      updateMarkers(getFiltered());
+      if (PLACES.length > 0) updateMarkers(getFiltered());
     });
   };
-  script.onerror = () => {
-    document.getElementById('apiStatus').className = 'api-status api-wait';
+  script.onerror = function() {
+    document.getElementById('apiStatus').className = 'api-status api-err';
     document.getElementById('apiStatus').textContent = '지도 로드 실패';
     document.getElementById('mapPlaceholder').innerHTML = '<div style="font-size:2rem">⚠️</div><div>카카오맵 로드에 실패했습니다</div><div style="font-size:.78rem">developers.kakao.com에서 JavaScript SDK 도메인 등록을 확인해주세요</div>';
   };
   document.head.appendChild(script);
 }
 
+/* ===== 마커 업데이트 ===== */
 function updateMarkers(filtered) {
-  markers.forEach(m => m.setMap(null));
-  infoWindows.forEach(iw => iw.close());
+  markers.forEach(function(m) { m.setMap(null); });
+  infoWindows.forEach(function(iw) { iw.close(); });
   markers = [];
   infoWindows = [];
-  const catColors = {'통일·안보':'#2563EB','독립·민주화':'#D97706','전쟁·호국':'#DC2626','역사·문화':'#16A34A','생태·평화':'#7C3AED'};
-  const bounds = new kakao.maps.LatLngBounds();
-  filtered.forEach(p => {
-    const pos = new kakao.maps.LatLng(p.lat, p.lng);
+  var catColors = {'통일·안보':'#2563EB','독립·민주화':'#D97706','전쟁·호국':'#DC2626','역사·문화':'#16A34A','생태·평화':'#7C3AED'};
+  var bounds = new kakao.maps.LatLngBounds();
+  filtered.forEach(function(p) {
+    if (!p.lat || !p.lng) return;
+    var pos = new kakao.maps.LatLng(p.lat, p.lng);
     bounds.extend(pos);
-    const color = catColors[p.category] || '#475569';
-    const markerImage = new kakao.maps.MarkerImage(
-      `https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=${encodeURIComponent(p.name[0])}|${color.replace('#','')}|FFFFFF`,
+    var color = catColors[p.category] || '#475569';
+    var markerImage = new kakao.maps.MarkerImage(
+      'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=' + encodeURIComponent(p.name[0]) + '|' + color.replace('#','') + '|FFFFFF',
       new kakao.maps.Size(21, 34)
     );
-    const marker = new kakao.maps.Marker({ position: pos, map: map, title: p.name, image: markerImage });
-    const iwContent = `<div style="padding:8px 12px;font-size:13px;max-width:220px;line-height:1.4"><strong>${p.name}</strong><br><span style="color:#64748B;font-size:11px">${p.category} · ${p.region}</span><br><span style="font-size:11px;color:#475569">${p.addr}</span></div>`;
-    const infoWindow = new kakao.maps.InfoWindow({ content: iwContent });
-    kakao.maps.event.addListener(marker, 'click', () => { infoWindows.forEach(iw => iw.close()); infoWindow.open(map, marker); selectPlace(p.id); });
-    kakao.maps.event.addListener(marker, 'mouseover', () => infoWindow.open(map, marker));
-    kakao.maps.event.addListener(marker, 'mouseout', () => { if (activePlace !== p.id) infoWindow.close(); });
+    var marker = new kakao.maps.Marker({ position: pos, map: map, title: p.name, image: markerImage });
+    var iwContent = '<div style="padding:8px 12px;font-size:13px;max-width:220px;line-height:1.4"><strong>' + p.name + '</strong><br><span style="color:#64748B;font-size:11px">' + p.category + ' · ' + p.region + '</span><br><span style="font-size:11px;color:#475569">' + p.addr + '</span></div>';
+    var infoWindow = new kakao.maps.InfoWindow({ content: iwContent });
+    (function(mk, iw, place) {
+      kakao.maps.event.addListener(mk, 'click', function() {
+        infoWindows.forEach(function(w) { w.close(); });
+        iw.open(map, mk);
+        selectPlace(place.id);
+      });
+      kakao.maps.event.addListener(mk, 'mouseover', function() { iw.open(map, mk); });
+      kakao.maps.event.addListener(mk, 'mouseout', function() { if (activePlace !== place.id) iw.close(); });
+    })(marker, infoWindow, p);
     markers.push(marker);
     infoWindows.push(infoWindow);
   });

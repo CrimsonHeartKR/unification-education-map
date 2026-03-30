@@ -1250,7 +1250,7 @@
                     <div class="edit-preview">
                         <canvas id="editCanvas" style="display: none;"></canvas>
                         <img id="editImage" class="preview-image" alt="촬영된 사진" style="display: none;">
-                        <div style="color: #666; font-size: 14px; text-align: center;">촬영된 사진이 여기에 표시됩니다</div>
+                        <div id="editPlaceholder" style="color: #666; font-size: 14px; text-align: center;">촬영된 사진이 여기에 표시됩니다</div>
                     </div>
                     <div class="edit-form">
                         <div class="form-group">
@@ -1579,6 +1579,7 @@
 
             ui.editImage.src = appState.currentPhoto.dataUrl;
             ui.editImage.style.display = 'block';
+            document.getElementById('editPlaceholder').style.display = 'none';
             ui.studentName.value = appState.currentPhoto.studentName || '';
             ui.studentMessage.value = appState.currentPhoto.studentMessage || '';
 
@@ -1725,6 +1726,7 @@
         function retakePhoto() {
             appState.currentPhoto = null;
             ui.editImage.style.display = 'none';
+            document.getElementById('editPlaceholder').style.display = '';
             ui.studentName.value = '';
             ui.studentMessage.value = '';
             switchTab({ target: ui.tabBtns[1] });

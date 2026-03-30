@@ -217,81 +217,7 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
-        /* 테마 A: 태극기 테마 */
-        .theme-a .frame-top {
-            background: #003478;
-            border-bottom: 3px solid #C60C30;
-        }
-
-        .theme-a .frame-bottom {
-            background: #C60C30;
-            border-top: 3px solid #003478;
-        }
-
-        .theme-a .frame-overlay {
-            border-left: 8px solid #003478;
-            border-right: 8px solid #C60C30;
-            background: linear-gradient(90deg, rgba(0, 52, 120, 0.05) 0%, transparent 20%, transparent 80%, rgba(198, 12, 48, 0.05) 100%);
-        }
-
-        /* 테마 B: DMZ 평화 테마 */
-        .theme-b .frame-top {
-            background: linear-gradient(90deg, #4A5D23 0%, #5a6f2e 100%);
-            border-bottom: 3px solid #2d3a15;
-        }
-
-        .theme-b .frame-bottom {
-            background: linear-gradient(90deg, #8B7355 0%, #6B5A45 100%);
-            border-top: 3px solid #4A5D23;
-        }
-
-        .theme-b .frame-overlay {
-            border-left: 8px solid #4A5D23;
-            border-right: 8px solid #8B7355;
-            background: linear-gradient(135deg, rgba(74, 93, 35, 0.08) 0%, rgba(139, 115, 85, 0.08) 100%);
-        }
-
-        /* DMZ 철조망에서 비둘기로 변환 SVG */
-        .dove-svg {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 80px;
-            height: 60px;
-            opacity: 0.3;
-        }
-
-        /* 테마 C: 한반도 테마 */
-        .theme-c .frame-top {
-            background: linear-gradient(90deg, #87CEEB 0%, #6BB6D6 100%);
-            color: #fff;
-            border-bottom: 3px solid #FFD700;
-        }
-
-        .theme-c .frame-bottom {
-            background: linear-gradient(90deg, #FFD700 0%, #FFC700 100%);
-            color: #333;
-            border-top: 3px solid #87CEEB;
-        }
-
-        .theme-c .frame-overlay {
-            border-left: 8px solid #87CEEB;
-            border-right: 8px solid #FFD700;
-            background: linear-gradient(90deg, rgba(135, 206, 235, 0.05) 0%, transparent 50%, rgba(255, 215, 0, 0.05) 100%);
-        }
-
-        .peninsula-svg {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 60px;
-            height: 80px;
-            opacity: 0.2;
-        }
-
-        /* 커스텀 프레임 PNG 오버레이 */
+        /* PNG 프레임 오버레이 */
         .custom-frame-overlay {
             position: absolute;
             top: 0;
@@ -610,25 +536,6 @@
             color: #333;
         }
 
-        /* 테마 D: 역사탐방 테마 */
-        .theme-d .frame-top {
-            background: linear-gradient(90deg, #5D4037 0%, #4E342E 100%);
-            border-bottom: 3px solid #F5E6CC;
-        }
-
-        .theme-d .frame-bottom {
-            background: #F5E6CC;
-            color: #5D4037;
-            border-top: 3px solid #5D4037;
-            font-style: italic;
-        }
-
-        .theme-d .frame-overlay {
-            border-left: 8px solid #5D4037;
-            border-right: 8px solid #8D6E63;
-            background: linear-gradient(90deg, rgba(93, 64, 55, 0.08) 0%, rgba(140, 110, 99, 0.08) 100%);
-        }
-
         /* 카메라 컨트롤 */
         .camera-controls {
             padding: 16px;
@@ -917,55 +824,6 @@
         .theme-select-intro p {
             font-size: 13px;
             color: #666;
-        }
-
-        .theme-card {
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-        }
-
-        .theme-card:active {
-            transform: scale(0.98);
-        }
-
-        .theme-card.selected {
-            border-color: #003478;
-            box-shadow: 0 4px 12px rgba(0, 52, 120, 0.2);
-        }
-
-        .theme-preview {
-            width: 100%;
-            aspect-ratio: 4/3;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            color: white;
-            font-weight: 600;
-            text-align: center;
-            justify-content: space-between;
-            font-size: 13px;
-        }
-
-        .theme-info {
-            padding: 12px;
-            text-align: center;
-            background: #f9f9f9;
-        }
-
-        .theme-name {
-            font-weight: 700;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .theme-desc {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
         }
 
         /* 설정 화면 */
@@ -1264,70 +1122,20 @@
                 <div class="theme-select-section">
                     <div class="theme-select-container">
                         <div class="theme-select-intro">
-                            <h2>어떤 테마를 선택하시겠습니까?</h2>
-                            <p>테마를 선택하고 사진을 찍어주세요</p>
+                            <h2>프레임을 선택해주세요</h2>
+                            <p>프레임을 터치하면 카메라로 이동합니다</p>
                         </div>
 
-                        <!-- 테마 A -->
-                        <div class="theme-card" data-theme="a">
-                            <div class="theme-preview" style="background: linear-gradient(180deg, #003478 0%, #003478 70%, #C60C30 70%);">
-                                <div style="font-size: 14px; font-weight: 700;">🇰🇷</div>
-                                <div>태극기 테마</div>
+                        <!-- 프레임 갤러리 (메인 선택 UI) -->
+                        <div class="frame-gallery-section" id="frameGallerySection">
+                            <div class="frame-gallery-grid" id="frameGalleryGrid">
+                                <div class="frame-gallery-empty">
+                                    등록된 프레임이 없습니다<br>
+                                    관리자가 프레임을 등록하면 여기에 표시됩니다
+                                </div>
                             </div>
-                            <div class="theme-info">
-                                <div class="theme-name">태극기 테마 (A)</div>
-                                <div class="theme-desc">평화와 통일의 염원</div>
-                            </div>
+                            <button class="frame-gallery-manage-btn" onclick="openFrameManager()">⚙️ 프레임 관리</button>
                         </div>
-
-                        <!-- 테마 B -->
-                        <div class="theme-card" data-theme="b">
-                            <div class="theme-preview" style="background: linear-gradient(180deg, #4A5D23 0%, #4A5D23 70%, #8B7355 70%);">
-                                <div style="font-size: 14px; font-weight: 700;">🕊️</div>
-                                <div>DMZ 평화 테마</div>
-                            </div>
-                            <div class="theme-info">
-                                <div class="theme-name">DMZ 평화 테마 (B)</div>
-                                <div class="theme-desc">평화의 시작, 우리의 한걸음</div>
-                            </div>
-                        </div>
-
-                        <!-- 테마 C -->
-                        <div class="theme-card" data-theme="c">
-                            <div class="theme-preview" style="background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 70%, #FFD700 70%);">
-                                <div style="font-size: 14px; font-weight: 700;">🗺️</div>
-                                <div>한반도 테마</div>
-                            </div>
-                            <div class="theme-info">
-                                <div class="theme-name">한반도 테마 (C)</div>
-                                <div class="theme-desc">하나된 한반도를 꿈꾸며</div>
-                            </div>
-                        </div>
-
-                        <!-- 테마 D -->
-                        <div class="theme-card" data-theme="d">
-                            <div class="theme-preview" style="background: linear-gradient(180deg, #5D4037 0%, #5D4037 70%, #F5E6CC 70%);">
-                                <div style="font-size: 14px; font-weight: 700;">📚</div>
-                                <div>역사탐방 테마</div>
-                            </div>
-                            <div class="theme-info">
-                                <div class="theme-name">역사탐방 테마 (D)</div>
-                                <div class="theme-desc">역사를 기억하고, 미래를 열다</div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- 프레임 갤러리 섹션 -->
-                    <div class="frame-gallery-section" id="frameGallerySection">
-                        <div class="frame-gallery-title">🖼️ PNG 프레임 갤러리</div>
-                        <div class="frame-gallery-grid" id="frameGalleryGrid">
-                            <div class="frame-gallery-empty">
-                                등록된 프레임이 없습니다<br>
-                                아래 버튼으로 프레임을 추가하세요
-                            </div>
-                        </div>
-                        <button class="frame-gallery-manage-btn" onclick="openFrameManager()">⚙️ 프레임 관리 (추가/삭제)</button>
                     </div>
 
                     <!-- 프레임 관리 모달 -->
@@ -1345,7 +1153,7 @@
                                     <input type="text" id="newFrameUrl" placeholder="Drive 파일 공유 링크 붙여넣기">
                                     <button onclick="addFrameToGallery()">추가</button>
                                 </div>
-                                <label style="font-size:10px; color:#aaa; margin-top:4px;">규격: 1080×1440px · 투명 배경 PNG · 최대 5개</label>
+                                <label style="font-size:10px; color:#aaa; margin-top:4px;">규격: 1080×1440px · 투명 배경 PNG · 최대 6개</label>
                             </div>
                             <div class="frame-manage-actions">
                                 <button class="btn-close" onclick="closeFrameManager()">닫기</button>
@@ -1455,7 +1263,7 @@
             date: new URLSearchParams(window.location.search).get('date') || new Date().toISOString().split('T')[0],
 
             // 카메라 상태
-            currentTheme: 'a',
+            currentTheme: 'custom',
             facingMode: 'environment',
             mediaStream: null,
             video: null,
@@ -1508,7 +1316,7 @@
             galleryGrid: document.getElementById('galleryGrid'),
             tabBtns: document.querySelectorAll('.tab-btn'),
             tabContents: document.querySelectorAll('.tab-content'),
-            themeCards: document.querySelectorAll('.theme-card'),
+            // themeCards 제거됨 - 프레임 갤러리로 대체
             settingsBtn: document.getElementById('settingsBtn'),
             permissionDenied: document.getElementById('permissionDenied'),
             retryBtn: document.getElementById('retryBtn'),
@@ -1522,43 +1330,10 @@
         // ============================================
         // 테마 정의
         // ============================================
+        // 프레임 전용 모드 (PNG 프레임만 사용)
         const themes = {
-            a: {
-                name: '태극기 테마',
-                slogan: '2026 평화·통일 체험학습',
-                topBg: '#003478',
-                bottomBg: '#C60C30',
-                textColor: 'white',
-                description: '평화와 통일의 염원'
-            },
-            b: {
-                name: 'DMZ 평화 테마',
-                slogan: '평화의 시작, 우리의 한걸음',
-                topBg: 'linear-gradient(90deg, #4A5D23 0%, #5a6f2e 100%)',
-                bottomBg: 'linear-gradient(90deg, #8B7355 0%, #6B5A45 100%)',
-                textColor: 'white',
-                description: '평화를 염원하다'
-            },
-            c: {
-                name: '한반도 테마',
-                slogan: '하나된 한반도를 꿈꾸며',
-                topBg: 'linear-gradient(90deg, #87CEEB 0%, #6BB6D6 100%)',
-                bottomBg: 'linear-gradient(90deg, #FFD700 0%, #FFC700 100%)',
-                textColor: 'white',
-                bottomTextColor: '#333',
-                description: '한반도의 통일을 염원하다'
-            },
-            d: {
-                name: '역사탐방 테마',
-                slogan: '역사를 기억하고, 미래를 열다',
-                topBg: 'linear-gradient(90deg, #5D4037 0%, #4E342E 100%)',
-                bottomBg: '#F5E6CC',
-                textColor: 'white',
-                bottomTextColor: '#5D4037',
-                description: '역사의 발자취를 따라'
-            },
             custom: {
-                name: '커스텀 프레임',
+                name: 'PNG 프레임',
                 slogan: '',
                 topBg: 'transparent',
                 bottomBg: 'transparent',
@@ -1599,10 +1374,7 @@
                 btn.addEventListener('click', switchTab);
             });
 
-            // 테마 선택
-            ui.themeCards.forEach(card => {
-                card.addEventListener('click', selectTheme);
-            });
+            // 테마 선택 (프레임 갤러리에서 처리)
 
             // 카메라 컨트롤
             ui.shutterBtn.addEventListener('click', capturePhoto);
@@ -1676,64 +1448,23 @@
         }
 
         // ============================================
-        // 테마 선택
+        // 테마 선택 (프레임 갤러리에서 처리)
         // ============================================
-        function selectTheme(e) {
-            const card = e.currentTarget;
-            const theme = card.dataset.theme;
-
-            ui.themeCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-
-            appState.currentTheme = theme;
-            updateFrameOverlay();
-            localStorage.setItem('selectedTheme', theme);
-
-            // 카메라 탭으로 이동 (커스텀 프레임이 아닌 경우)
-            if (theme !== 'custom') {
-                setTimeout(() => {
-                    switchTab({ target: ui.tabBtns[1] });
-                }, 300);
-            }
-        }
 
         // ============================================
         // 프레임 오버레이 업데이트
         // ============================================
         function updateFrameOverlay() {
-            const theme = themes[appState.currentTheme];
             const frameOverlay = ui.frameOverlay;
 
-            // 커스텀 프레임 모드 처리
-            if (appState.currentTheme === 'custom' && appState.customFrameLoaded) {
-                // CSS 프레임 숨기기, PNG 프레임 표시
+            // PNG 프레임이 로드되어 있으면 PNG 오버레이 표시
+            if (appState.customFrameLoaded) {
                 frameOverlay.style.display = 'none';
                 ui.customFrameOverlay.style.display = 'block';
-                return;
             } else {
-                // CSS 프레임 표시, PNG 프레임 숨기기
-                frameOverlay.style.display = 'flex';
+                // 프레임 미선택 시 오버레이 모두 숨김
+                frameOverlay.style.display = 'none';
                 ui.customFrameOverlay.style.display = 'none';
-            }
-
-            // 클래스 업데이트
-            frameOverlay.className = `frame-overlay theme-${appState.currentTheme}`;
-
-            // 슬로건 업데이트
-            ui.frameTop.textContent = theme.slogan;
-
-            // 색상 업데이트
-            const topBar = frameOverlay.querySelector('.frame-top');
-            const bottomBar = frameOverlay.querySelector('.frame-bottom');
-
-            if (topBar) {
-                topBar.style.background = theme.topBg;
-                topBar.style.color = theme.textColor;
-            }
-
-            if (bottomBar) {
-                bottomBar.style.background = theme.bottomBg;
-                bottomBar.style.color = theme.bottomTextColor || theme.textColor;
             }
         }
 
@@ -1784,72 +1515,11 @@
         // 캔버스에 프레임 그리기
         // ============================================
         function drawFrameOnCanvas(ctx, width, height) {
-            // 커스텀 PNG 프레임인 경우
-            if (appState.currentTheme === 'custom' && appState.customFrameLoaded && appState.customFrameImage) {
+            // PNG 프레임이 로드되어 있으면 그리기
+            if (appState.customFrameLoaded && appState.customFrameImage) {
                 ctx.drawImage(appState.customFrameImage, 0, 0, width, height);
-                return;
             }
-
-            const theme = themes[appState.currentTheme];
-            const topHeight = height * 0.12;
-            const bottomHeight = height * 0.12;
-
-            // 상단 바 그리기
-            ctx.fillStyle = theme.topBg.includes('gradient') ? '#003478' : theme.topBg;
-            if (theme.topBg.includes('gradient')) {
-                const gradient = ctx.createLinearGradient(0, 0, width, 0);
-                if (appState.currentTheme === 'b') {
-                    gradient.addColorStop(0, '#4A5D23');
-                    gradient.addColorStop(1, '#5a6f2e');
-                } else if (appState.currentTheme === 'c') {
-                    gradient.addColorStop(0, '#87CEEB');
-                    gradient.addColorStop(1, '#6BB6D6');
-                } else if (appState.currentTheme === 'd') {
-                    gradient.addColorStop(0, '#5D4037');
-                    gradient.addColorStop(1, '#4E342E');
-                }
-                ctx.fillStyle = gradient;
-            }
-            ctx.fillRect(0, 0, width, topHeight);
-
-            // 상단 텍스트
-            ctx.fillStyle = theme.textColor;
-            ctx.font = 'bold 20px Arial, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(theme.slogan, width / 2, topHeight / 2);
-
-            // 하단 바 그리기
-            ctx.fillStyle = theme.bottomBg.includes('gradient') ? '#8B7355' : theme.bottomBg;
-            if (theme.bottomBg.includes('gradient')) {
-                const gradient = ctx.createLinearGradient(0, height - bottomHeight, width, height);
-                if (appState.currentTheme === 'b') {
-                    gradient.addColorStop(0, '#8B7355');
-                    gradient.addColorStop(1, '#6B5A45');
-                } else if (appState.currentTheme === 'c') {
-                    gradient.addColorStop(0, '#FFD700');
-                    gradient.addColorStop(1, '#FFC700');
-                }
-                ctx.fillStyle = gradient;
-            }
-            ctx.fillRect(0, height - bottomHeight, width, bottomHeight);
-
-            // 하단 텍스트 - 장소
-            ctx.fillStyle = theme.bottomTextColor || theme.textColor;
-            ctx.font = 'bold 14px Arial, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('📍 ' + appState.place, 20, height - bottomHeight / 2);
-
-            // 하단 텍스트 - 날짜
-            ctx.textAlign = 'right';
-            ctx.fillText('📅 ' + appState.date, width - 20, height - bottomHeight / 2);
-
-            // 서울교육청 로고
-            ctx.fillStyle = theme.bottomTextColor || theme.textColor;
-            ctx.font = 'bold 10px Arial, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('서울특별시교육청', width / 2, topHeight / 2 - 15);
+            // 프레임 미선택 시 사진만 저장 (오버레이 없음)
         }
 
         // ============================================
@@ -2171,10 +1841,8 @@
             const idx = appState.frameGallery.findIndex(f => f.id === frameId);
             if (items[idx]) items[idx].classList.add('selected');
 
-            // CSS 테마 선택 해제하고 커스텀 모드로
-            ui.themeCards.forEach(c => c.classList.remove('selected'));
+            // 프레임 모드 설정
             appState.currentTheme = 'custom';
-            localStorage.setItem('selectedTheme', 'custom');
 
             // 프레임 이미지 로드
             showStatus('프레임 로딩 중...', 'info');
@@ -2266,7 +1934,7 @@
 
             if (!name) { showStatus('프레임 이름을 입력해주세요', 'error'); return; }
             if (!url) { showStatus('URL을 입력해주세요', 'error'); return; }
-            if (appState.frameGallery.length >= 5) { showStatus('프레임은 최대 5개까지 등록할 수 있습니다', 'error'); return; }
+            if (appState.frameGallery.length >= 6) { showStatus('프레임은 최대 6개까지 등록할 수 있습니다', 'error'); return; }
 
             const directUrl = convertDriveUrl(url);
             const frame = {
@@ -2345,26 +2013,15 @@
         function restoreSavedInfo() {
             const savedName = localStorage.getItem('studentName');
             const savedMessage = localStorage.getItem('studentMessage');
-            const savedTheme = localStorage.getItem('selectedTheme');
 
             if (savedName) ui.studentName.value = savedName;
             if (savedMessage) ui.studentMessage.value = savedMessage;
-
-            if (savedTheme && themes[savedTheme]) {
-                appState.currentTheme = savedTheme;
-                const card = document.querySelector(`[data-theme="${savedTheme}"]`);
-                if (card) {
-                    ui.themeCards.forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                }
-                updateFrameOverlay();
-            }
 
             // 프레임 갤러리 렌더링
             renderFrameGallery();
 
             // 이전에 선택된 갤러리 프레임 복원
-            if (savedTheme === 'custom' && appState.selectedFrameId) {
+            if (appState.selectedFrameId) {
                 const frame = appState.frameGallery.find(f => f.id === appState.selectedFrameId);
                 if (frame) {
                     loadCustomFrameImage(frame.directUrl);

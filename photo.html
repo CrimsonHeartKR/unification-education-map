@@ -536,6 +536,66 @@
             color: #333;
         }
 
+        /* 프레임 미리보기 모달 */
+        .frame-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .frame-preview-modal.active {
+            display: flex;
+        }
+
+        .frame-preview-modal .preview-image {
+            max-width: 85%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 12px;
+            background: repeating-conic-gradient(#444 0% 25%, #333 0% 50%) 50% / 16px 16px;
+        }
+
+        .frame-preview-modal .preview-name {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .frame-preview-modal .preview-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .frame-preview-modal .btn-use {
+            padding: 14px 32px;
+            border: none;
+            background: #003478;
+            color: white;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .frame-preview-modal .btn-cancel {
+            padding: 14px 24px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: white;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
         /* 카메라 컨트롤 */
         .camera-controls {
             padding: 16px;
@@ -1112,7 +1172,6 @@
             <button class="tab-btn active" data-tab="theme-select">테마 선택</button>
             <button class="tab-btn" data-tab="camera">📷 촬영</button>
             <button class="tab-btn" data-tab="edit">✏️ 편집</button>
-            <button class="tab-btn" data-tab="gallery">📷 갤러리</button>
         </div>
 
         <!-- 콘텐츠 -->
@@ -1163,6 +1222,16 @@
                 </div>
             </div>
 
+            <!-- 프레임 미리보기 모달 -->
+            <div class="frame-preview-modal" id="framePreviewModal">
+                <img class="preview-image" id="framePreviewImage" alt="프레임 미리보기">
+                <div class="preview-name" id="framePreviewName"></div>
+                <div class="preview-actions">
+                    <button class="btn-cancel" onclick="closeFramePreview()">돌아가기</button>
+                    <button class="btn-use" onclick="confirmFrameSelection()">이 프레임 사용</button>
+                </div>
+            </div>
+
             <!-- 카메라 탭 -->
             <div class="tab-content" id="camera">
                 <div class="camera-section">
@@ -1198,7 +1267,6 @@
                     <div class="camera-controls">
                         <button class="btn" id="flipBtn" title="카메라 전환">🔄</button>
                         <button class="btn shutter" id="shutterBtn" title="촬영"></button>
-                        <button class="btn" id="themeSelectBtn" title="테마 변경">🎨</button>
                     </div>
                 </div>
             </div>
@@ -1213,8 +1281,8 @@
                     </div>
                     <div class="edit-form">
                         <div class="form-group">
-                            <label class="form-label">학생 이름</label>
-                            <input type="text" id="studentName" class="form-input" placeholder="이름을 입력하세요" maxlength="20">
+                            <label class="form-label">학교명 학년 반 이름</label>
+                            <input type="text" id="studentName" class="form-input" placeholder="통일초등학교 6학년 1반 김평화" maxlength="40">
                         </div>
                         <div class="form-group">
                             <label class="form-label">📝 평화에 대한 한마디</label>
@@ -1230,14 +1298,6 @@
                 </div>
             </div>
 
-            <!-- 갤러리 탭 -->
-            <div class="tab-content" id="gallery">
-                <div class="gallery-section">
-                    <div class="gallery-grid" id="galleryGrid">
-                        <div class="gallery-empty">촬영된 사진이 없습니다</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -1306,14 +1366,13 @@
             cameraPlaceholder: document.getElementById('cameraPlaceholder'),
             shutterBtn: document.getElementById('shutterBtn'),
             flipBtn: document.getElementById('flipBtn'),
-            themeSelectBtn: document.getElementById('themeSelectBtn'),
             studentName: document.getElementById('studentName'),
             studentMessage: document.getElementById('studentMessage'),
             downloadBtn: document.getElementById('downloadBtn'),
             uploadBtn: document.getElementById('uploadBtn'),
             retakeBtn: document.getElementById('retakeBtn'),
             shareBtn: document.getElementById('shareBtn'),
-            galleryGrid: document.getElementById('galleryGrid'),
+            // galleryGrid 제거됨
             tabBtns: document.querySelectorAll('.tab-btn'),
             tabContents: document.querySelectorAll('.tab-content'),
             // themeCards 제거됨 - 프레임 갤러리로 대체
@@ -1356,6 +1415,9 @@
             ui.frameManageModal.addEventListener('click', function(e) {
                 if (e.target === ui.frameManageModal) closeFrameManager();
             });
+            document.getElementById('framePreviewModal').addEventListener('click', function(e) {
+                if (e.target === this) closeFramePreview();
+            });
         }
 
         function updateHeaderInfo() {
@@ -1379,7 +1441,6 @@
             // 카메라 컨트롤
             ui.shutterBtn.addEventListener('click', capturePhoto);
             ui.flipBtn.addEventListener('click', flipCamera);
-            ui.themeSelectBtn.addEventListener('click', () => switchTab({ target: ui.tabBtns[0] }));
 
             // 편집 컨트롤
             ui.downloadBtn.addEventListener('click', downloadPhoto);
@@ -1545,6 +1606,12 @@
                 return;
             }
 
+            if (!ui.studentName.value.trim()) {
+                showStatus('학교명 학년 반 이름을 입력해주세요', 'error');
+                ui.studentName.focus();
+                return;
+            }
+
             const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
             const dataUrl = appState.currentPhoto.dataUrl;
 
@@ -1615,6 +1682,12 @@
                 return;
             }
 
+            if (!ui.studentName.value.trim()) {
+                showStatus('학교명 학년 반 이름을 입력해주세요', 'error');
+                ui.studentName.focus();
+                return;
+            }
+
             if (!appState.appsScriptUrl) {
                 showStatus('Apps Script URL이 설정되지 않았습니다', 'error');
                 return;
@@ -1624,8 +1697,8 @@
                 ui.uploadBtn.disabled = true;
                 ui.uploadBtn.innerHTML = '<span class="spinner"></span> 업로드 중...';
 
-                // 이미지를 Base64로 변환
-                const base64Image = appState.currentPhoto.dataUrl.split(',')[1];
+                // 업로드용 이미지 압축 (최대 1024px, 품질 0.6)
+                const base64Image = await compressForUpload(appState.currentPhoto.dataUrl, 1024, 0.6);
 
                 const payload = {
                     action: 'uploadPhoto',
@@ -1699,28 +1772,9 @@
         // ============================================
         // 갤러리 업데이트
         // ============================================
-        function updateGallery() {
-            const grid = ui.galleryGrid;
-
-            if (appState.photos.length === 0) {
-                grid.innerHTML = '<div class="gallery-empty">촬영된 사진이 없습니다</div>';
-                return;
-            }
-
-            grid.innerHTML = '';
-            appState.photos.forEach((photo, index) => {
-                const item = document.createElement('div');
-                item.className = 'gallery-item';
-                item.innerHTML = `<img src="${photo.dataUrl}" alt="사진 ${index + 1}">`;
-                item.addEventListener('click', () => viewPhotoInGallery(index));
-                grid.appendChild(item);
-            });
-        }
-
-        function viewPhotoInGallery(index) {
-            appState.currentPhoto = appState.photos[index];
-            showEditScreen();
-        }
+        // 갤러리 탭 제거됨 — 사진은 다운로드/업로드로 관리
+        function updateGallery() { }
+        function viewPhotoInGallery() { }
 
         // ============================================
         // 탭 전환
@@ -1838,10 +1892,33 @@
             });
         }
 
-        // 갤러리에서 프레임 선택
+        // 갤러리에서 프레임 클릭 → 미리보기
         function selectGalleryFrame(frameId) {
             const frame = appState.frameGallery.find(f => f.id === frameId);
             if (!frame) return;
+
+            // 미리보기 모달 표시
+            appState._pendingFrameId = frameId;
+            document.getElementById('framePreviewImage').src = frame.directUrl;
+            document.getElementById('framePreviewName').textContent = frame.name;
+            document.getElementById('framePreviewModal').classList.add('active');
+        }
+
+        // 미리보기 닫기
+        function closeFramePreview() {
+            document.getElementById('framePreviewModal').classList.remove('active');
+            appState._pendingFrameId = null;
+        }
+
+        // 미리보기에서 "이 프레임 사용" 확정
+        function confirmFrameSelection() {
+            const frameId = appState._pendingFrameId;
+            if (!frameId) return;
+
+            const frame = appState.frameGallery.find(f => f.id === frameId);
+            if (!frame) return;
+
+            closeFramePreview();
 
             appState.selectedFrameId = frameId;
             localStorage.setItem('selectedFrameId', frameId);
@@ -1858,6 +1935,27 @@
             // 프레임 이미지 로드
             showStatus('프레임 로딩 중...', 'info');
             loadCustomFrameImage(frame.directUrl);
+        }
+
+        // 업로드용 이미지 압축
+        function compressForUpload(dataUrl, maxSize, quality) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    if (w > maxSize || h > maxSize) {
+                        const ratio = Math.min(maxSize / w, maxSize / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+                };
+                img.src = dataUrl;
+            });
         }
 
         // 커스텀 프레임 이미지 공통 로드

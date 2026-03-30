@@ -1160,10 +1160,6 @@
         <div class="header">
             <div>
                 <div class="header-title">📸 2026 평화·통일 체험학습</div>
-                <div class="header-info" id="headerInfo"></div>
-            </div>
-            <div class="header-right">
-                <button class="btn" id="settingsBtn" style="width: 40px; height: 40px; font-size: 20px;">⚙️</button>
             </div>
         </div>
 
@@ -1314,7 +1310,7 @@
             // 설정
             imageQuality: 0.8,
             imageWidth: 1280,
-            appsScriptUrl: localStorage.getItem('appsScriptUrl') || 'https://script.google.com/macros/s/AKfycbyZgl_5qG1KJaZGIuaRA5xCNbO0pALgoxz-fPzkcE8XxSxS4wevUHU2ckANH_7Tv1QO/exec',
+            appsScriptUrl: 'https://script.google.com/macros/s/AKfycbyZgl_5qG1KJaZGIuaRA5xCNbO0pALgoxz-fPzkcE8XxSxS4wevUHU2ckANH_7Tv1QO/exec',
             frameFolderId: '1Mskpa9NkppI3RO4MxMAKI7wsOg66fjnj',
 
             // 커스텀 프레임
@@ -1338,7 +1334,6 @@
             frameTop: document.getElementById('frameTop'),
             framePlace: document.getElementById('framePlace'),
             frameDate: document.getElementById('frameDate'),
-            headerInfo: document.getElementById('headerInfo'),
             cameraPlaceholder: document.getElementById('cameraPlaceholder'),
             shutterBtn: document.getElementById('shutterBtn'),
             flipBtn: document.getElementById('flipBtn'),
@@ -1352,7 +1347,6 @@
             tabBtns: document.querySelectorAll('.tab-btn'),
             tabContents: document.querySelectorAll('.tab-content'),
             // themeCards 제거됨 - 프레임 갤러리로 대체
-            settingsBtn: document.getElementById('settingsBtn'),
             permissionDenied: document.getElementById('permissionDenied'),
             retryBtn: document.getElementById('retryBtn'),
             customFrameOverlay: document.getElementById('customFrameOverlay'),
@@ -1380,7 +1374,6 @@
         // 초기화
         // ============================================
         function init() {
-            updateHeaderInfo();
             setupEventListeners();
             initCamera();
 
@@ -1425,13 +1418,6 @@
             }
         }
 
-        function updateHeaderInfo() {
-            const info = `${appState.team} | ${appState.course} | ${appState.place}`;
-            ui.headerInfo.textContent = info;
-            ui.framePlace.textContent = appState.place;
-            ui.frameDate.textContent = appState.date;
-        }
-
         // ============================================
         // 이벤트 리스너 설정
         // ============================================
@@ -1452,9 +1438,6 @@
             ui.uploadBtn.addEventListener('click', uploadPhoto);
             ui.retakeBtn.addEventListener('click', retakePhoto);
             ui.shareBtn.addEventListener('click', sharePhoto);
-
-            // 설정
-            ui.settingsBtn.addEventListener('click', openSettings);
 
             // 권한 거부
             ui.retryBtn.addEventListener('click', initCamera);
@@ -1794,18 +1777,6 @@
             document.getElementById(tabName)?.classList.add('active');
         }
 
-        // ============================================
-        // 설정
-        // ============================================
-        function openSettings() {
-            const url = prompt('Apps Script URL을 입력하세요:', appState.appsScriptUrl);
-            if (url !== null) {
-                appState.appsScriptUrl = url;
-                localStorage.setItem('appsScriptUrl', url);
-                showStatus('✅ 설정이 저장되었습니다. 프레임을 다시 로드합니다.', 'success');
-                loadFramesFromServer();
-            }
-        }
 
         // ============================================
         // 상태 메시지

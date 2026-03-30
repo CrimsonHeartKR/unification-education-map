@@ -382,6 +382,234 @@
             font-weight: 600;
         }
 
+        /* 프레임 갤러리 */
+        .frame-gallery-section {
+            margin: 12px;
+            padding: 12px;
+            background: #f0f4ff;
+            border-radius: 12px;
+            border: 1px solid #d0d8f0;
+        }
+
+        .frame-gallery-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #003478;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .frame-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+        }
+
+        .frame-gallery-item {
+            position: relative;
+            aspect-ratio: 3/4;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 50% / 12px 12px;
+            transition: all 0.2s ease;
+        }
+
+        .frame-gallery-item:active {
+            transform: scale(0.95);
+        }
+
+        .frame-gallery-item.selected {
+            border-color: #003478;
+            box-shadow: 0 0 0 2px rgba(0, 52, 120, 0.3);
+        }
+
+        .frame-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .frame-gallery-item .frame-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3px 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .frame-gallery-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 24px 12px;
+            color: #999;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .frame-gallery-manage-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            border: 1px dashed #aab;
+            background: transparent;
+            color: #666;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* 프레임 관리 모달 */
+        .frame-manage-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .frame-manage-modal.active {
+            display: flex;
+        }
+
+        .frame-manage-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .frame-manage-content h3 {
+            font-size: 16px;
+            color: #003478;
+            margin-bottom: 14px;
+        }
+
+        .frame-manage-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .frame-manage-item .frame-thumb {
+            width: 40px;
+            height: 53px;
+            border-radius: 4px;
+            object-fit: contain;
+            background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 50% / 8px 8px;
+        }
+
+        .frame-manage-item .frame-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .frame-manage-item .frame-info input {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .frame-manage-item .frame-url-text {
+            font-size: 10px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .frame-manage-item .btn-remove {
+            padding: 4px 8px;
+            border: none;
+            background: #e74c3c;
+            color: white;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .frame-add-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .frame-add-section label {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .frame-add-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .frame-add-row input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .frame-add-row button {
+            padding: 8px 12px;
+            border: none;
+            background: #003478;
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .frame-manage-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .frame-manage-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .frame-manage-actions .btn-close {
+            background: #f0f0f0;
+            color: #333;
+        }
+
         /* 테마 D: 역사탐방 테마 */
         .theme-d .frame-top {
             background: linear-gradient(90deg, #5D4037 0%, #4E342E 100%);
@@ -1088,32 +1316,41 @@
                             </div>
                         </div>
 
-                        <!-- 커스텀 PNG 프레임 -->
-                        <div class="theme-card" data-theme="custom" id="customThemeCard">
-                            <div class="theme-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px dashed rgba(255,255,255,0.5);">
-                                <div style="font-size: 14px; font-weight: 700;">🖼️</div>
-                                <div>커스텀 프레임</div>
-                            </div>
-                            <div class="theme-info">
-                                <div class="theme-name">커스텀 PNG 프레임</div>
-                                <div class="theme-desc">나만의 프레임 이미지 사용</div>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- 커스텀 프레임 업로드 영역 -->
-                    <div class="custom-frame-upload" id="customFrameUpload">
-                        <label>PNG 프레임 이미지를 업로드하거나 URL을 입력하세요</label>
-                        <label style="font-size:11px; color:#999;">(권장: 1080x1440px, 투명 배경 PNG)</label>
-                        <div class="custom-upload-row">
-                            <input type="text" id="customFrameUrl" placeholder="이미지 URL (구글드라이브, GitHub 등)">
-                            <button onclick="loadCustomFrameFromUrl()">불러오기</button>
+                    <!-- 프레임 갤러리 섹션 -->
+                    <div class="frame-gallery-section" id="frameGallerySection">
+                        <div class="frame-gallery-title">🖼️ PNG 프레임 갤러리</div>
+                        <div class="frame-gallery-grid" id="frameGalleryGrid">
+                            <div class="frame-gallery-empty">
+                                등록된 프레임이 없습니다<br>
+                                아래 버튼으로 프레임을 추가하세요
+                            </div>
                         </div>
-                        <label class="file-upload-btn" id="fileUploadLabel">
-                            📁 파일에서 선택
-                            <input type="file" id="customFrameFile" accept="image/png,image/webp" onchange="loadCustomFrameFromFile(event)">
-                        </label>
-                        <div class="custom-frame-status" id="customFrameStatus">프레임이 로드되지 않았습니다</div>
+                        <button class="frame-gallery-manage-btn" onclick="openFrameManager()">⚙️ 프레임 관리 (추가/삭제)</button>
+                    </div>
+
+                    <!-- 프레임 관리 모달 -->
+                    <div class="frame-manage-modal" id="frameManageModal">
+                        <div class="frame-manage-content">
+                            <h3>🖼️ 프레임 관리</h3>
+                            <div id="frameManageList"></div>
+                            <div class="frame-add-section">
+                                <label>새 프레임 추가</label>
+                                <label style="font-size:11px; color:#007bff; margin-top:2px;">📂 프레임 폴더: <a href="https://drive.google.com/drive/folders/1Mskpa9NkppI3RO4MxMAKI7wsOg66fjnj" target="_blank" style="color:#007bff;">Google Drive 열기</a></label>
+                                <div class="frame-add-row">
+                                    <input type="text" id="newFrameName" placeholder="프레임 이름 (예: 평화의봄)">
+                                </div>
+                                <div class="frame-add-row">
+                                    <input type="text" id="newFrameUrl" placeholder="Drive 파일 공유 링크 붙여넣기">
+                                    <button onclick="addFrameToGallery()">추가</button>
+                                </div>
+                                <label style="font-size:10px; color:#aaa; margin-top:4px;">규격: 1080×1440px · 투명 배경 PNG · 최대 5개</label>
+                            </div>
+                            <div class="frame-manage-actions">
+                                <button class="btn-close" onclick="closeFrameManager()">닫기</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1232,11 +1469,17 @@
             // 설정
             imageQuality: 0.8,
             imageWidth: 1280,
-            appsScriptUrl: localStorage.getItem('appsScriptUrl') || '',
+            appsScriptUrl: localStorage.getItem('appsScriptUrl') || 'https://script.google.com/macros/s/AKfycbxKXFj6WCn_Bj8sMhaivym-kVp5LR9lni4RkoRJUy2UdD0kSOb-ujs5IvG8VQ-qfRcQ/exec',
+            frameFolderId: '1Mskpa9NkppI3RO4MxMAKI7wsOg66fjnj',
 
             // 커스텀 프레임
             customFrameImage: null,  // Image 객체
             customFrameLoaded: false,
+
+            // 프레임 갤러리
+            frameGallery: JSON.parse(localStorage.getItem('frameGallery') || '[]'),
+            // 각 항목: { id, name, url, directUrl }
+            selectedFrameId: localStorage.getItem('selectedFrameId') || null,
         };
 
         // ============================================
@@ -1271,9 +1514,9 @@
             retryBtn: document.getElementById('retryBtn'),
             customFrameOverlay: document.getElementById('customFrameOverlay'),
             customFramePreview: document.getElementById('customFramePreview'),
-            customFrameUpload: document.getElementById('customFrameUpload'),
-            customFrameUrl: document.getElementById('customFrameUrl'),
-            customFrameStatus: document.getElementById('customFrameStatus'),
+            frameGalleryGrid: document.getElementById('frameGalleryGrid'),
+            frameManageModal: document.getElementById('frameManageModal'),
+            frameManageList: document.getElementById('frameManageList'),
         };
 
         // ============================================
@@ -1332,6 +1575,12 @@
             updateHeaderInfo();
             setupEventListeners();
             initCamera();
+            renderFrameGallery();
+
+            // 모달 외부 클릭 시 닫기
+            ui.frameManageModal.addEventListener('click', function(e) {
+                if (e.target === ui.frameManageModal) closeFrameManager();
+            });
         }
 
         function updateHeaderInfo() {
@@ -1440,18 +1689,8 @@
             updateFrameOverlay();
             localStorage.setItem('selectedTheme', theme);
 
-            // 커스텀 프레임 업로드 영역 토글
-            if (theme === 'custom') {
-                ui.customFrameUpload.classList.add('active');
-                // 프레임이 이미 로드되어 있으면 카메라로 이동
-                if (appState.customFrameLoaded) {
-                    setTimeout(() => {
-                        switchTab({ target: ui.tabBtns[1] });
-                    }, 300);
-                }
-            } else {
-                ui.customFrameUpload.classList.remove('active');
-                // 카메라 탭으로 이동
+            // 카메라 탭으로 이동 (커스텀 프레임이 아닌 경우)
+            if (theme !== 'custom') {
                 setTimeout(() => {
                     switchTab({ target: ui.tabBtns[1] });
                 }, 300);
@@ -1524,21 +1763,19 @@
             // 프레임 오버레이 그리기
             drawFrameOnCanvas(ctx, ui.canvas.width, ui.canvas.height);
 
-            // 캔버스를 이미지로 변환
-            ui.canvas.toBlob(blob => {
-                const dataUrl = URL.createObjectURL(blob);
-                appState.currentPhoto = {
-                    dataUrl: dataUrl,
-                    studentName: ui.studentName.value,
-                    studentMessage: ui.studentMessage.value,
-                    theme: appState.currentTheme,
-                    timestamp: new Date().toISOString()
-                };
+            // 캔버스를 이미지로 변환 (data URL 방식 — 모바일 다운로드 호환)
+            const dataUrl = ui.canvas.toDataURL('image/jpeg', appState.imageQuality);
+            appState.currentPhoto = {
+                dataUrl: dataUrl,
+                studentName: ui.studentName.value,
+                studentMessage: ui.studentMessage.value,
+                theme: appState.currentTheme,
+                timestamp: new Date().toISOString()
+            };
 
-                appState.photos.push(appState.currentPhoto);
-                showEditScreen();
-                updateGallery();
-            }, 'image/jpeg', appState.imageQuality);
+            appState.photos.push(appState.currentPhoto);
+            showEditScreen();
+            updateGallery();
 
             playShutterSound();
         }
@@ -1638,15 +1875,65 @@
                 return;
             }
 
-            const link = document.createElement('a');
             const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
-            link.href = appState.currentPhoto.dataUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const dataUrl = appState.currentPhoto.dataUrl;
 
-            showStatus('✅ 사진이 저장되었습니다', 'success');
+            // iOS Safari 대응: 새 탭에서 이미지 열기
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            if (isIOS) {
+                // iOS는 <a download>가 제한적 — 새 창에서 이미지를 열어 길게 눌러 저장 유도
+                const newWindow = window.open();
+                if (newWindow) {
+                    newWindow.document.write(
+                        `<!DOCTYPE html><html><head><title>${fileName}</title>` +
+                        `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+                        `<style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#000;}` +
+                        `img{max-width:100%;height:auto;}` +
+                        `.guide{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.8);color:#fff;text-align:center;padding:16px;font-size:15px;z-index:10;}</style></head><body>` +
+                        `<div class="guide">📱 이미지를 <b>길게 눌러</b> "사진에 추가"로 저장하세요</div>` +
+                        `<img src="${dataUrl}" alt="${fileName}">` +
+                        `</body></html>`
+                    );
+                    newWindow.document.close();
+                } else {
+                    showStatus('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요', 'error');
+                    return;
+                }
+                showStatus('✅ 새 창에서 이미지를 길게 눌러 저장하세요', 'success');
+                return;
+            }
+
+            // Android / PC: data URL → Blob 변환 후 다운로드
+            try {
+                const byteString = atob(dataUrl.split(',')[1]);
+                const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                const blob = new Blob([ab], { type: mimeString });
+                const blobUrl = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+                showStatus('✅ 사진이 저장되었습니다', 'success');
+            } catch (e) {
+                // fallback: 직접 data URL 다운로드
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showStatus('✅ 사진이 저장되었습니다', 'success');
+            }
         }
 
         // ============================================
@@ -1782,10 +2069,24 @@
         // 설정
         // ============================================
         function openSettings() {
+            const pin = prompt('관리자 비밀번호 (4자리)를 입력하세요:');
+            if (pin === null) return;
+            if (pin !== getAdminPin()) {
+                showStatus('비밀번호가 틀렸습니다', 'error');
+                return;
+            }
+
             const url = prompt('Apps Script URL을 입력하세요:', appState.appsScriptUrl);
             if (url !== null) {
                 appState.appsScriptUrl = url;
                 localStorage.setItem('appsScriptUrl', url);
+            }
+
+            const newPin = prompt('관리자 비밀번호 변경 (변경 안하려면 빈칸):', '');
+            if (newPin && newPin.length === 4 && /^\d{4}$/.test(newPin)) {
+                localStorage.setItem('adminPin', newPin);
+                showStatus('✅ 설정 및 비밀번호가 저장되었습니다', 'success');
+            } else {
                 showStatus('✅ 설정이 저장되었습니다', 'success');
             }
         }
@@ -1823,59 +2124,64 @@
         }
 
         // ============================================
-        // 커스텀 PNG 프레임 로드 (URL)
+        // 프레임 갤러리 시스템
         // ============================================
-        function loadCustomFrameFromUrl() {
-            let url = ui.customFrameUrl.value.trim();
-            if (!url) {
-                showStatus('URL을 입력해주세요', 'error');
-                return;
-            }
 
-            // 구글 드라이브 공유 링크 변환
-            // https://drive.google.com/file/d/FILE_ID/view → direct download
+        // Google Drive URL → 직접 다운로드 URL 변환
+        function convertDriveUrl(url) {
             const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
-            if (driveMatch) {
-                url = 'https://drive.google.com/uc?export=view&id=' + driveMatch[1];
-            }
-
-            // 구글 드라이브 open 링크 변환
+            if (driveMatch) return 'https://drive.google.com/uc?export=view&id=' + driveMatch[1];
             const openMatch = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-            if (openMatch) {
-                url = 'https://drive.google.com/uc?export=view&id=' + openMatch[1];
-            }
-
-            ui.customFrameStatus.textContent = '로딩 중...';
-            ui.customFrameStatus.className = 'custom-frame-status';
-
-            loadCustomFrameImage(url);
+            if (openMatch) return 'https://drive.google.com/uc?export=view&id=' + openMatch[1];
+            return url;
         }
 
-        // ============================================
-        // 커스텀 PNG 프레임 로드 (파일)
-        // ============================================
-        function loadCustomFrameFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // 갤러리 그리드 렌더링
+        function renderFrameGallery() {
+            const grid = ui.frameGalleryGrid;
+            const frames = appState.frameGallery;
 
-            if (!file.type.startsWith('image/')) {
-                showStatus('이미지 파일만 업로드 가능합니다', 'error');
+            if (frames.length === 0) {
+                grid.innerHTML = '<div class="frame-gallery-empty">등록된 프레임이 없습니다<br>아래 버튼으로 프레임을 추가하세요</div>';
                 return;
             }
 
-            ui.customFrameStatus.textContent = '로딩 중...';
-            ui.customFrameStatus.className = 'custom-frame-status';
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                loadCustomFrameImage(e.target.result);
-            };
-            reader.readAsDataURL(file);
+            grid.innerHTML = '';
+            frames.forEach(frame => {
+                const item = document.createElement('div');
+                item.className = 'frame-gallery-item' + (appState.selectedFrameId === frame.id ? ' selected' : '');
+                item.innerHTML = '<img src="' + frame.directUrl + '" alt="' + frame.name + '" crossorigin="anonymous">' +
+                    '<div class="frame-label">' + frame.name + '</div>';
+                item.addEventListener('click', () => selectGalleryFrame(frame.id));
+                grid.appendChild(item);
+            });
         }
 
-        // ============================================
+        // 갤러리에서 프레임 선택
+        function selectGalleryFrame(frameId) {
+            const frame = appState.frameGallery.find(f => f.id === frameId);
+            if (!frame) return;
+
+            appState.selectedFrameId = frameId;
+            localStorage.setItem('selectedFrameId', frameId);
+
+            // 갤러리 선택 표시 업데이트
+            document.querySelectorAll('.frame-gallery-item').forEach(el => el.classList.remove('selected'));
+            const items = document.querySelectorAll('.frame-gallery-item');
+            const idx = appState.frameGallery.findIndex(f => f.id === frameId);
+            if (items[idx]) items[idx].classList.add('selected');
+
+            // CSS 테마 선택 해제하고 커스텀 모드로
+            ui.themeCards.forEach(c => c.classList.remove('selected'));
+            appState.currentTheme = 'custom';
+            localStorage.setItem('selectedTheme', 'custom');
+
+            // 프레임 이미지 로드
+            showStatus('프레임 로딩 중...', 'info');
+            loadCustomFrameImage(frame.directUrl);
+        }
+
         // 커스텀 프레임 이미지 공통 로드
-        // ============================================
         function loadCustomFrameImage(src) {
             const img = new Image();
             img.crossOrigin = 'anonymous';
@@ -1883,16 +2189,9 @@
             img.onload = function() {
                 appState.customFrameImage = img;
                 appState.customFrameLoaded = true;
-
-                // 미리보기 표시
                 ui.customFramePreview.src = src;
-                ui.customFrameStatus.textContent = '프레임 로드 완료 (' + img.width + 'x' + img.height + ')';
-                ui.customFrameStatus.className = 'custom-frame-status loaded';
-
                 updateFrameOverlay();
-                showStatus('커스텀 프레임이 적용되었습니다', 'success');
-
-                // 카메라 탭으로 이동
+                showStatus('프레임이 적용되었습니다', 'success');
                 setTimeout(() => {
                     switchTab({ target: ui.tabBtns[1] });
                 }, 500);
@@ -1900,12 +2199,120 @@
 
             img.onerror = function() {
                 appState.customFrameLoaded = false;
-                ui.customFrameStatus.textContent = '이미지 로드 실패 - URL 또는 파일을 확인해주세요';
-                ui.customFrameStatus.className = 'custom-frame-status';
-                showStatus('프레임 이미지를 불러올 수 없습니다', 'error');
+                showStatus('프레임 이미지를 불러올 수 없습니다. URL을 확인해주세요.', 'error');
             };
 
             img.src = src;
+        }
+
+        // 관리자 PIN (기본값: 1234, 설정에서 변경 가능)
+        function getAdminPin() {
+            return localStorage.getItem('adminPin') || '1234';
+        }
+
+        // 프레임 관리 모달 열기 (PIN 인증)
+        function openFrameManager() {
+            const pin = prompt('관리자 비밀번호 (4자리)를 입력하세요:');
+            if (pin === null) return; // 취소
+            if (pin !== getAdminPin()) {
+                showStatus('비밀번호가 틀렸습니다', 'error');
+                return;
+            }
+            renderFrameManageList();
+            ui.frameManageModal.classList.add('active');
+        }
+
+        // 프레임 관리 모달 닫기
+        function closeFrameManager() {
+            ui.frameManageModal.classList.remove('active');
+        }
+
+        // 관리 목록 렌더링
+        function renderFrameManageList() {
+            const list = ui.frameManageList;
+            const frames = appState.frameGallery;
+
+            if (frames.length === 0) {
+                list.innerHTML = '<div style="text-align:center;color:#999;padding:16px;font-size:13px;">등록된 프레임이 없습니다</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            frames.forEach((frame, idx) => {
+                const item = document.createElement('div');
+                item.className = 'frame-manage-item';
+                item.innerHTML = '<img class="frame-thumb" src="' + frame.directUrl + '" alt="' + frame.name + '">' +
+                    '<div class="frame-info">' +
+                    '<div style="font-size:13px;font-weight:600;">' + frame.name + '</div>' +
+                    '<div class="frame-url-text">' + frame.url + '</div>' +
+                    '</div>' +
+                    '<button class="btn-remove" data-idx="' + idx + '">삭제</button>';
+                list.appendChild(item);
+            });
+
+            list.querySelectorAll('.btn-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    removeFrameFromGallery(parseInt(this.dataset.idx));
+                });
+            });
+        }
+
+        // 프레임 추가
+        function addFrameToGallery() {
+            const nameInput = document.getElementById('newFrameName');
+            const urlInput = document.getElementById('newFrameUrl');
+            const name = nameInput.value.trim();
+            const url = urlInput.value.trim();
+
+            if (!name) { showStatus('프레임 이름을 입력해주세요', 'error'); return; }
+            if (!url) { showStatus('URL을 입력해주세요', 'error'); return; }
+            if (appState.frameGallery.length >= 5) { showStatus('프레임은 최대 5개까지 등록할 수 있습니다', 'error'); return; }
+
+            const directUrl = convertDriveUrl(url);
+            const frame = {
+                id: 'frame_' + Date.now(),
+                name: name,
+                url: url,
+                directUrl: directUrl
+            };
+
+            // 이미지 유효성 확인
+            const testImg = new Image();
+            testImg.crossOrigin = 'anonymous';
+            testImg.onload = function() {
+                appState.frameGallery.push(frame);
+                saveFrameGallery();
+                renderFrameGallery();
+                renderFrameManageList();
+                nameInput.value = '';
+                urlInput.value = '';
+                showStatus('프레임 "' + name + '"이(가) 추가되었습니다', 'success');
+            };
+            testImg.onerror = function() {
+                showStatus('이미지를 불러올 수 없습니다. URL을 확인해주세요.', 'error');
+            };
+            testImg.src = directUrl;
+        }
+
+        // 프레임 삭제
+        function removeFrameFromGallery(idx) {
+            const removed = appState.frameGallery.splice(idx, 1)[0];
+            if (removed && appState.selectedFrameId === removed.id) {
+                appState.selectedFrameId = null;
+                appState.customFrameLoaded = false;
+                appState.customFrameImage = null;
+                localStorage.removeItem('selectedFrameId');
+                updateFrameOverlay();
+            }
+            saveFrameGallery();
+            renderFrameGallery();
+            renderFrameManageList();
+            showStatus('프레임이 삭제되었습니다', 'info');
+        }
+
+        // localStorage 저장
+        function saveFrameGallery() {
+            localStorage.setItem('frameGallery', JSON.stringify(appState.frameGallery));
         }
 
         // ============================================
@@ -1950,11 +2357,18 @@
                     ui.themeCards.forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                 }
-                // 커스텀 테마 복원 시 업로드 영역 표시
-                if (savedTheme === 'custom') {
-                    ui.customFrameUpload.classList.add('active');
-                }
                 updateFrameOverlay();
+            }
+
+            // 프레임 갤러리 렌더링
+            renderFrameGallery();
+
+            // 이전에 선택된 갤러리 프레임 복원
+            if (savedTheme === 'custom' && appState.selectedFrameId) {
+                const frame = appState.frameGallery.find(f => f.id === appState.selectedFrameId);
+                if (frame) {
+                    loadCustomFrameImage(frame.directUrl);
+                }
             }
         }
 

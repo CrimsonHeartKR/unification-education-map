@@ -1797,12 +1797,23 @@
         // 프레임 갤러리 시스템
         // ============================================
 
-        // Google Drive URL → 직접 다운로드 URL 변환
+        // Google Drive URL → 직접 이미지 URL 변환
         function convertDriveUrl(url) {
-            const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
-            if (driveMatch) return 'https://drive.google.com/uc?export=view&id=' + driveMatch[1];
+            let fileId = null;
+            // https://drive.google.com/file/d/FILE_ID/view
+            const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
+            if (driveMatch) fileId = driveMatch[1];
+            // https://drive.google.com/open?id=FILE_ID
             const openMatch = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-            if (openMatch) return 'https://drive.google.com/uc?export=view&id=' + openMatch[1];
+            if (openMatch) fileId = openMatch[1];
+            // https://drive.google.com/uc?id=FILE_ID
+            const ucMatch = url.match(/drive\.google\.com\/uc\?.*id=([^&]+)/);
+            if (ucMatch) fileId = ucMatch[1];
+
+            if (fileId) {
+                // lh3 thumbnail URL — CORS 문제 없이 이미지 로드 가능
+                return 'https://lh3.googleusercontent.com/d/' + fileId;
+            }
             return url;
         }
 
@@ -1820,7 +1831,7 @@
             frames.forEach(frame => {
                 const item = document.createElement('div');
                 item.className = 'frame-gallery-item' + (appState.selectedFrameId === frame.id ? ' selected' : '');
-                item.innerHTML = '<img src="' + frame.directUrl + '" alt="' + frame.name + '" crossorigin="anonymous">' +
+                item.innerHTML = '<img src="' + frame.directUrl + '" alt="' + frame.name + '">' +
                     '<div class="frame-label">' + frame.name + '</div>';
                 item.addEventListener('click', () => selectGalleryFrame(frame.id));
                 grid.appendChild(item);
@@ -1866,8 +1877,28 @@
             };
 
             img.onerror = function() {
-                appState.customFrameLoaded = false;
-                showStatus('프레임 이미지를 불러올 수 없습니다. URL을 확인해주세요.', 'error');
+                // CORS 실패 시 crossOrigin 없이 재시도 (미리보기는 되지만 캔버스 합성 제한)
+                if (img.crossOrigin) {
+                    const img2 = new Image();
+                    img2.onload = function() {
+                        appState.customFrameImage = img2;
+                        appState.customFrameLoaded = true;
+                        ui.customFramePreview.src = src;
+                        updateFrameOverlay();
+                        showStatus('프레임이 적용되었습니다', 'success');
+                        setTimeout(() => {
+                            switchTab({ target: ui.tabBtns[1] });
+                        }, 500);
+                    };
+                    img2.onerror = function() {
+                        appState.customFrameLoaded = false;
+                        showStatus('프레임 이미지를 불러올 수 없습니다. 공유 설정을 확인해주세요.', 'error');
+                    };
+                    img2.src = src;
+                } else {
+                    appState.customFrameLoaded = false;
+                    showStatus('프레임 이미지를 불러올 수 없습니다. URL을 확인해주세요.', 'error');
+                }
             };
 
             img.src = src;
@@ -1944,9 +1975,8 @@
                 directUrl: directUrl
             };
 
-            // 이미지 유효성 확인
+            // 이미지 유효성 확인 (CORS 없이 — 추가 시에는 표시만 확인)
             const testImg = new Image();
-            testImg.crossOrigin = 'anonymous';
             testImg.onload = function() {
                 appState.frameGallery.push(frame);
                 saveFrameGallery();
@@ -1957,7 +1987,7 @@
                 showStatus('프레임 "' + name + '"이(가) 추가되었습니다', 'success');
             };
             testImg.onerror = function() {
-                showStatus('이미지를 불러올 수 없습니다. URL을 확인해주세요.', 'error');
+                showStatus('이미지를 불러올 수 없습니다. Google Drive 공유 설정을 "링크가 있는 모든 사용자"로 변경해주세요.', 'error');
             };
             testImg.src = directUrl;
         }

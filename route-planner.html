@@ -657,7 +657,7 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 0px) {
             .container {
                 flex-direction: column;
             }
@@ -997,6 +997,9 @@
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 btn.classList.add('active');
                 document.getElementById(tabName + 'Tab').classList.add('active');
+                if (tabName === 'map' && map) {
+                    setTimeout(() => { map.relayout(); if (currentRoute) updateMapDisplay(); }, 50);
+                }
             });
         });
 
@@ -1502,9 +1505,10 @@
                         center: new kakao.maps.LatLng(37.5, 127),
                         level: 8
                     };
-                    map = new kakao.maps.Map(container, options);
                     document.getElementById('mapFallback').classList.remove('show');
                     document.getElementById('map').style.display = 'block';
+                    map = new kakao.maps.Map(container, options);
+                    setTimeout(() => { map.relayout(); map.setCenter(new kakao.maps.LatLng(37.5, 127)); }, 100);
                     if (currentRoute) updateMapDisplay();
                 });
             };

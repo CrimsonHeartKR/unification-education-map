@@ -698,11 +698,12 @@
 <body>
     <header>
         <h1>통일교육 동선 자동화 시스템</h1>
-        <div class="api-keys">
-            <input type="password" id="restApiKey" class="api-input" placeholder="REST API 키 입력" title="Kakao REST API Key for Directions and Search">
-            <input type="password" id="jsApiKey" class="api-input" placeholder="JS SDK 키 (선택)" title="Kakao Maps JS SDK Key (optional)">
-        </div>
     </header>
+    <script>
+        // 카카오 API 키 (하드코딩) - JS키는 도메인 제한, REST키는 내부용
+        const KAKAO_JS_KEY = 'be59efe600108faa0ba7fdbe71666b4a';
+        const KAKAO_REST_KEY = 'e32d88b1fe943af2fafd9722f0f54919';
+    </script>
 
     <div class="container">
         <div class="left-panel">
@@ -968,8 +969,8 @@
         });
 
         // Kakao Maps 초기화
-        const jsApiKey = document.getElementById('jsApiKey');
-        jsApiKey.addEventListener('change', initializeMap);
+        // 페이지 로드 시 지도 자동 초기화
+        window.addEventListener('DOMContentLoaded', initializeMap);
 
         // 유틸리티 함수
         function debounce(fn, delay) {
@@ -1004,7 +1005,7 @@
                 return;
             }
 
-            const restApiKey = document.getElementById('restApiKey').value.trim();
+            const restApiKey = KAKAO_REST_KEY;
             if (!restApiKey) {
                 showError('REST API 키를 입력하세요.');
                 return;
@@ -1160,7 +1161,7 @@
                 return;
             }
 
-            const restApiKey = document.getElementById('restApiKey').value.trim();
+            const restApiKey = KAKAO_REST_KEY;
             if (!restApiKey) {
                 showError('REST API 키를 입력하세요.');
                 return;
@@ -1435,7 +1436,7 @@
 
         // 지도 표시
         function initializeMap() {
-            const key = document.getElementById('jsApiKey').value.trim();
+            const key = KAKAO_JS_KEY;
             if (!key) return;
 
             const script = document.createElement('script');

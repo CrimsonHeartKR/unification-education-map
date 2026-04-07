@@ -24,22 +24,20 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
-        /* 모바일 가로 회전 시에도 세로 레이아웃 강제 유지 */
+        /* 모바일 가로 회전 시 컨테이너를 역회전하여 세로 레이아웃 강제 유지 */
+        /* (카메라 영상은 그대로 캡처되어 가로 사진 저장 가능) */
         @media (orientation: landscape) and (max-width: 900px) and (pointer: coarse) {
-            body::before {
-                content: '📱 휴대폰을 세로로 돌려주세요';
+            html, body {
+                overflow: hidden;
+            }
+            .container {
                 position: fixed;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.92);
-                color: #fff;
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 18px;
-                font-weight: 600;
-                text-align: center;
-                padding: 20px;
+                top: 0;
+                left: 100vw;
+                width: 100vh;
+                height: 100vw;
+                transform: rotate(90deg);
+                transform-origin: top left;
             }
         }
         /* 가로/세로 선택 라디오 */

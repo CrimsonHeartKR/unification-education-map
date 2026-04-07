@@ -24,6 +24,53 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
+        /* 모바일 가로 회전 시에도 세로 레이아웃 강제 유지 */
+        @media (orientation: landscape) and (max-width: 900px) and (pointer: coarse) {
+            body::before {
+                content: '📱 휴대폰을 세로로 돌려주세요';
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.92);
+                color: #fff;
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                font-weight: 600;
+                text-align: center;
+                padding: 20px;
+            }
+        }
+        /* 가로/세로 선택 라디오 */
+        .orientation-picker {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .orientation-picker label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            background: #f9f9f9;
+            transition: all 0.15s;
+        }
+        .orientation-picker label.active {
+            border-color: #003478;
+            background: #e8f0ff;
+            color: #003478;
+            font-weight: 600;
+        }
+        .orientation-picker input[type="radio"] {
+            display: none;
+        }
 
         /* 메인 컨테이너 */
         .container {
@@ -1261,6 +1308,14 @@
                             <label class="form-label">📝 평화에 대한 한마디</label>
                             <input type="text" id="studentMessage" class="form-input" placeholder="평화에 대한 한마디를 입력하세요" maxlength="30">
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">📐 저장 방향</label>
+                            <div class="orientation-picker" id="orientationPicker">
+                                <label data-orient="auto" class="active"><input type="radio" name="saveOrient" value="auto" checked>🔄 자동</label>
+                                <label data-orient="portrait"><input type="radio" name="saveOrient" value="portrait">📱 세로</label>
+                                <label data-orient="landscape"><input type="radio" name="saveOrient" value="landscape">🖼️ 가로</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="action-buttons">
                         <button class="btn-primary primary" id="downloadBtn">📥 사진 저장</button>
@@ -1377,6 +1432,19 @@
         // ============================================
         function init() {
             setupEventListeners();
+            // 화면 세로 고정 시도 (지원 브라우저만)
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('portrait').catch(()=>{});
+                }
+            } catch(e) {}
+            // 가로/세로 라디오 이벤트
+            document.querySelectorAll('#orientationPicker input').forEach(r => {
+                r.addEventListener('change', () => {
+                    document.querySelectorAll('#orientationPicker label').forEach(l => l.classList.remove('active'));
+                    r.parentElement.classList.add('active');
+                });
+            });
             initCamera();
 
             // Google Drive 폴더에서 프레임 목록 자동 로드
@@ -1597,7 +1665,7 @@
         // ============================================
         // 사진 다운로드
         // ============================================
-        function downloadPhoto() {
+        async function downloadPhoto() {
             if (!appState.currentPhoto) {
                 showStatus('촬영된 사진이 없습니다', 'error');
                 return;
@@ -1610,7 +1678,7 @@
             }
 
             const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
-            const dataUrl = appState.currentPhoto.dataUrl;
+            const dataUrl = await getOrientedDataUrl(appState.currentPhoto.dataUrl);
 
             // iOS Safari 대응: 새 탭에서 이미지 열기
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -1694,8 +1762,9 @@
                 ui.uploadBtn.disabled = true;
                 ui.uploadBtn.innerHTML = '<span class="spinner"></span> 업로드 중...';
 
-                // 업로드용 이미지 압축 (최대 1024px, 품질 0.6)
-                const base64Image = await compressForUpload(appState.currentPhoto.dataUrl, 1024, 0.6);
+                // 선택 방향 적용 후 업로드용 이미지 압축 (최대 1024px, 품질 0.6)
+                const orientedUrl = await getOrientedDataUrl(appState.currentPhoto.dataUrl);
+                const base64Image = await compressForUpload(orientedUrl, 1024, 0.6);
 
                 const payload = {
                     action: 'uploadPhoto',
@@ -1750,8 +1819,9 @@
             }
 
             try {
-                // dataURL → File 변환
-                const res = await fetch(appState.currentPhoto.dataUrl);
+                // 선택 방향 적용 후 dataURL → File 변환
+                const orientedUrl = await getOrientedDataUrl(appState.currentPhoto.dataUrl);
+                const res = await fetch(orientedUrl);
                 const blob = await res.blob();
                 const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
                 const file = new File([blob], fileName, { type: 'image/jpeg' });
@@ -1928,6 +1998,31 @@
             // 프레임 이미지 로드
             showStatus('프레임 로딩 중...', 'info');
             loadCustomFrameImage(frame.directUrl);
+        }
+
+        // 선택된 저장 방향으로 dataUrl 회전 (auto면 원본 그대로)
+        function getOrientedDataUrl(dataUrl) {
+            return new Promise((resolve) => {
+                const sel = document.querySelector('#orientationPicker input:checked');
+                const choice = sel ? sel.value : 'auto';
+                if (choice === 'auto') { resolve(dataUrl); return; }
+                const img = new Image();
+                img.onload = function() {
+                    const isLand = img.width >= img.height;
+                    const wantLand = (choice === 'landscape');
+                    if (isLand === wantLand) { resolve(dataUrl); return; }
+                    // 90도 회전
+                    const c = document.createElement('canvas');
+                    c.width = img.height;
+                    c.height = img.width;
+                    const ctx = c.getContext('2d');
+                    ctx.translate(c.width / 2, c.height / 2);
+                    ctx.rotate(Math.PI / 2);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+                    resolve(c.toDataURL('image/jpeg', appState.imageQuality));
+                };
+                img.src = dataUrl;
+            });
         }
 
         // 업로드용 이미지 압축

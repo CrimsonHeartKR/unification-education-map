@@ -1474,7 +1474,7 @@
                     <div class="route-leg" style="background: #F0F4F8; border-left-color: #8BA7C8;">
                         <div class="distance">${segment.distance} km</div>
                         <div class="time">소요시간: ${segment.duration}분 (체류: ${placeData.stayMin}분)</div>
-                        <div style="margin-top:6px;"><a href="https://map.kakao.com/?sName=${encodeURIComponent(segment.from)}&eName=${encodeURIComponent(segment.to)}" target="_blank" style="display:inline-block;padding:4px 8px;background:#4A7BA7;color:#fff;border-radius:4px;font-size:11px;text-decoration:none;">🗺️ 카카오맵에서 보기</a></div>
+                        <div style="margin-top:6px;"><a href="https://map.kakao.com/?q=${encodeURIComponent(place)}" target="_blank" style="display:inline-block;padding:4px 8px;background:#4A7BA7;color:#fff;border-radius:4px;font-size:11px;text-decoration:none;">🗺️ ${place} 카카오맵에서 보기</a></div>
                     </div>
                 `;
             }
@@ -1487,7 +1487,7 @@
                     <div class="route-leg" style="background: #F0F4F8; border-left-color: #8BA7C8;">
                         <div class="distance">${segments[3].distance} km</div>
                         <div class="time">소요시간: ${segments[3].duration}분</div>
-                        <div style="margin-top:6px;"><a href="https://map.kakao.com/?sName=${encodeURIComponent(segments[3].from)}&eName=${encodeURIComponent(segments[3].to)}" target="_blank" style="display:inline-block;padding:4px 8px;background:#4A7BA7;color:#fff;border-radius:4px;font-size:11px;text-decoration:none;">🗺️ 카카오맵에서 보기</a></div>
+                        <div style="margin-top:6px;"><a href="https://map.kakao.com/?q=${encodeURIComponent(currentRoute.school.name)}" target="_blank" style="display:inline-block;padding:4px 8px;background:#00AA00;color:#fff;border-radius:4px;font-size:11px;text-decoration:none;">🏫 ${currentRoute.school.name} 카카오맵에서 보기</a></div>
                     </div>
                 </div>
 

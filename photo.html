@@ -1742,20 +1742,40 @@
             }
 
             try {
-                if (navigator.share) {
+                // dataURL → File 변환
+                const res = await fetch(appState.currentPhoto.dataUrl);
+                const blob = await res.blob();
+                const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
+                const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+                const shareData = {
+                    files: [file],
+                    title: '2026 평화·통일 체험학습',
+                    text: `${appState.place}에서 #2026평화통일 #체험학습`
+                };
+
+                // Web Share API Level 2 (파일 공유 가능)
+                if (navigator.canShare && navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
+                    showStatus('✅ 공유 완료', 'success');
+                } else if (navigator.share) {
+                    // 파일 공유 미지원 — 텍스트/URL만 공유
                     await navigator.share({
-                        title: '2026 평화·통일 체험학습',
-                        text: `${appState.place}에서 촬영한 사진입니다.`,
+                        title: shareData.title,
+                        text: shareData.text,
                         url: window.location.href
                     });
+                    showStatus('💡 사진은 별도로 저장 후 첨부해주세요', 'info');
                 } else {
-                    // 링크 복사 폴백
-                    const shareUrl = window.location.href;
-                    await navigator.clipboard.writeText(shareUrl);
-                    showStatus('🔗 링크가 복사되었습니다', 'success');
+                    // 폴백: 다운로드 후 SNS 앱에서 직접 첨부 안내
+                    downloadPhoto();
+                    showStatus('사진 저장 후 SNS 앱에서 첨부해주세요', 'info');
                 }
             } catch (error) {
-                console.error('공유 오류:', error);
+                if (error.name !== 'AbortError') {
+                    console.error('공유 오류:', error);
+                    showStatus('공유 실패: ' + error.message, 'error');
+                }
             }
         }
 

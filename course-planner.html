@@ -396,17 +396,17 @@
         }
 
         #map {
+            flex: 1 1 auto;
+            min-height: 0;
             width: 100%;
-            height: 100%;
             background: #F0F4F8;
-            display: none;
         }
 
         .map-fallback {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: #F0F4F8;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             color: #888;
@@ -414,7 +414,10 @@
             text-align: center;
             padding: 20px;
             flex-direction: column;
+            z-index: 5;
         }
+
+        #mapTab { position: relative; }
 
         .map-fallback.show {
             display: flex;
@@ -863,6 +866,23 @@
             '광명 가학광산 역사관': {lat:37.4422, lng:126.87, addr:'경기 광명시 가학로85번길 142', fee:'4,000원', stayMin:90, busOk:true},
             '안산 독립운동 역사길': {lat:37.3217, lng:126.8308, addr:'경기 안산시 상록구', fee:'무료', stayMin:60, busOk:false},
             '시흥 갯골 생태공원': {lat:37.3808, lng:126.7833, addr:'경기 시흥시 동서로 287', fee:'무료', stayMin:90, busOk:true},
+            // === C-01~C-10 신규 장소 ===
+            '임진각 국민관광지(자유의다리·독개다리·평화누리공원)': {lat:37.8867, lng:126.7408, addr:'경기 파주시 문산읍 임진각로 148-53', fee:'무료(일부 유료)', stayMin:120, busOk:true},
+            '국립6.25전쟁납북자기념관': {lat:37.7547, lng:126.6856, addr:'경기 파주시 탄현면 필승로 369', fee:'무료', stayMin:60, busOk:true},
+            '열쇠전망대': {lat:38.1322, lng:127.0681, addr:'경기 연천군 신서면 신서로', fee:'무료', stayMin:40, busOk:true},
+            '강화평화전망대': {lat:37.8389, lng:126.4533, addr:'인천 강화군 양사면 전망대로 797', fee:'2,500원', stayMin:60, busOk:true},
+            '연미정·월곶돈대': {lat:37.7553, lng:126.5117, addr:'인천 강화군 강화읍 월곳리', fee:'무료', stayMin:40, busOk:true},
+            '인천상륙작전기념관': {lat:37.4456, lng:126.6797, addr:'인천 연수구 청량로 138', fee:'무료', stayMin:90, busOk:true},
+            '자유공원(맥아더동상)': {lat:37.4744, lng:126.6217, addr:'인천 중구 자유공원남로 25', fee:'무료', stayMin:40, busOk:true},
+            '인천통일관(월미도)': {lat:37.4758, lng:126.5961, addr:'인천 중구 월미로 269', fee:'무료', stayMin:60, busOk:true},
+            '서울함공원': {lat:37.5544, lng:126.8889, addr:'서울 마포구 마포나루길 407', fee:'3,000원', stayMin:60, busOk:true},
+            '서울통일관': {lat:37.6603, lng:127.0117, addr:'서울 강북구 4·19로 123', fee:'무료', stayMin:60, busOk:true},
+            '서해수호관(해군2함대)': {lat:36.9606, lng:126.8219, addr:'경기 평택시 포승읍 평택항만길 73', fee:'무료(사전신청)', stayMin:90, busOk:true},
+            '평택항 홍보관': {lat:36.9656, lng:126.8264, addr:'경기 평택시 포승읍 평택항만길', fee:'무료', stayMin:60, busOk:true},
+            '죽미령 평화공원(스미스부대)': {lat:37.1608, lng:127.0775, addr:'경기 오산시 경기대로 714', fee:'무료', stayMin:60, busOk:true},
+            '다산 정약용 유적지(남양주)': {lat:37.5856, lng:127.1467, addr:'경기 남양주시 조안면 다산로 747번길 11', fee:'무료', stayMin:60, busOk:true},
+            '구리 동구릉(세계유산)': {lat:37.6153, lng:127.1297, addr:'경기 구리시 동구릉로 197', fee:'1,000원', stayMin:60, busOk:true},
+            '한탄강 세계지질공원센터(포천)': {lat:38.0244, lng:127.2153, addr:'경기 포천시 영북면 비둘기낭길 55', fee:'5,000원', stayMin:90, busOk:true},
         };
 
         // 코스별 입장료·서류·준비물 안내 (종합계획_v2 연동)

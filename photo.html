@@ -1316,6 +1316,8 @@
             // 커스텀 프레임
             customFrameImage: null,  // Image 객체
             customFrameLoaded: false,
+            frameAspectRatio: 4/3,   // 프레임 가로/세로 비율 (기본 가로 4:3)
+            frameOrientation: 'landscape', // 'landscape' | 'portrait'
 
             // 프레임 갤러리 (앱 시작 시 Google Drive 폴더에서 자동 로드)
             frameGallery: [],
@@ -1455,11 +1457,17 @@
                 ui.permissionDenied.style.display = 'none';
                 ui.cameraPlaceholder.style.display = 'flex';
 
+                // 프레임 비율에 따라 캡처 해상도 동적 결정
+                const isPortrait = appState.frameAspectRatio < 1;
+                const idealW = isPortrait ? 960 : 1280;
+                const idealH = isPortrait ? 1280 : 960;
+
                 const constraints = {
                     video: {
                         facingMode: appState.facingMode,
-                        width: { ideal: 1280 },
-                        height: { ideal: 960 }
+                        width: { ideal: idealW },
+                        height: { ideal: idealH },
+                        aspectRatio: { ideal: appState.frameAspectRatio }
                     },
                     audio: false
                 };
@@ -1944,35 +1952,63 @@
         }
 
         // 커스텀 프레임 이미지 공통 로드
+        // 프레임 비율을 미리보기/캔버스 영역 CSS에 동적 적용
+        function applyFrameAspectRatio(ratio) {
+            const ratioStr = ratio.toFixed(4);
+            // 카메라 프리뷰 영역
+            const camContainer = document.querySelector('.camera-container');
+            if (camContainer) {
+                camContainer.style.aspectRatio = ratioStr;
+                camContainer.style.flex = '0 0 auto';
+                camContainer.style.width = '100%';
+                camContainer.style.maxHeight = '100%';
+                camContainer.style.margin = '0 auto';
+            }
+            // 편집 미리보기 영역
+            const editPreview = document.querySelector('.edit-preview');
+            if (editPreview) {
+                editPreview.style.aspectRatio = ratioStr;
+            }
+            // 비디오는 contain으로 바꿔서 비율 안 맞을 때 잘림 방지
+            if (ui.video) {
+                ui.video.style.objectFit = ratio < 1 ? 'cover' : 'cover';
+            }
+        }
+
         function loadCustomFrameImage(src) {
             const img = new Image();
             img.crossOrigin = 'anonymous';
 
-            img.onload = function() {
-                appState.customFrameImage = img;
+            const applyLoaded = async (loadedImg) => {
+                appState.customFrameImage = loadedImg;
                 appState.customFrameLoaded = true;
+                // 1) 프레임 PNG의 가로/세로 비율 자동 감지
+                const ratio = loadedImg.naturalWidth / loadedImg.naturalHeight;
+                appState.frameAspectRatio = ratio;
+                appState.frameOrientation = ratio < 1 ? 'portrait' : 'landscape';
                 ui.customFramePreview.src = src;
+                // 2) CSS 영역 비율 동적 적용
+                applyFrameAspectRatio(ratio);
                 updateFrameOverlay();
-                showStatus('프레임이 적용되었습니다', 'success');
+                // 3) 카메라 재시작 — 새 비율에 맞는 해상도로 스트림 재요청
+                if (appState.mediaStream) {
+                    appState.mediaStream.getTracks().forEach(t => t.stop());
+                    appState.mediaStream = null;
+                }
+                await initCamera();
+                showStatus(`프레임이 적용되었습니다 (${appState.frameOrientation === 'portrait' ? '세로' : '가로'})`, 'success');
                 setTimeout(() => {
                     switchTab({ target: ui.tabBtns[1] });
                 }, 500);
             };
 
+            img.onload = function() { applyLoaded(img); };
+
             img.onerror = function() {
                 // CORS 실패 시 crossOrigin 없이 재시도 (미리보기는 되지만 캔버스 합성 제한)
                 if (img.crossOrigin) {
                     const img2 = new Image();
-                    img2.onload = function() {
-                        appState.customFrameImage = img2;
-                        appState.customFrameLoaded = true;
-                        ui.customFramePreview.src = src;
-                        updateFrameOverlay();
-                        showStatus('프레임이 적용되었습니다', 'success');
-                        setTimeout(() => {
-                            switchTab({ target: ui.tabBtns[1] });
-                        }, 500);
-                    };
+                    img2.onload = function() { applyLoaded(img2); };
                     img2.onerror = function() {
                         appState.customFrameLoaded = false;
                         showStatus('프레임 이미지를 불러올 수 없습니다. 공유 설정을 확인해주세요.', 'error');

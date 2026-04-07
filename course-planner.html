@@ -1240,39 +1240,15 @@
 
             try {
                 const places = selectedCourse.places;
-                const segments = [];
 
-                // 세 개의 구간 계산: 학교→장소1, 장소1→장소2, 장소2→장소3, 장소3→학교
-                const legs = [
-                    { from: 'school', to: places[0] },
-                    { from: places[0], to: places[1] },
-                    { from: places[1], to: places[2] },
-                    { from: places[2], to: 'school' }
+                // 학교 → 장소1 → 장소2 → 장소3 → 학교 (다중 경유지 API 1회 호출)
+                const stops = [
+                    { name: selectedSchool.name, lat: selectedSchool.lat, lng: selectedSchool.lng },
+                    ...places.map(p => ({ name: p, lat: PLACES[p].lat, lng: PLACES[p].lng })),
+                    { name: selectedSchool.name + ' (복귀)', lat: selectedSchool.lat, lng: selectedSchool.lng }
                 ];
 
-                for (const leg of legs) {
-                    const fromCoords = leg.from === 'school'
-                        ? selectedSchool
-                        : PLACES[leg.from];
-                    const toCoords = leg.to === 'school'
-                        ? selectedSchool
-                        : PLACES[leg.to];
-
-                    const fromName = leg.from === 'school' ? selectedSchool.name : leg.from;
-                    const toName = leg.to === 'school' ? selectedSchool.name : leg.to;
-
-                    const segment = await getDirections(
-                        restApiKey,
-                        fromCoords.lat,
-                        fromCoords.lng,
-                        toCoords.lat,
-                        toCoords.lng,
-                        fromName,
-                        toName
-                    );
-
-                    segments.push(segment);
-                }
+                const segments = await getMultiDirections(restApiKey, stops);
 
                 currentRoute = {
                     school: selectedSchool,
@@ -1293,14 +1269,28 @@
             }
         }
 
-        async function getDirections(apiKey, startLat, startLng, endLat, endLng, startName, endName) {
-            // Kakao Mobility Directions API는 GET 방식, 좌표 파라미터는 "경도,위도" 순서
-            const url = `https://apis-navi.kakaomobility.com/v1/directions?origin=${startLng},${startLat}&destination=${endLng},${endLat}&priority=RECOMMEND&car_fuel=GASOLINE&car_hipass=false&alternatives=false&road_details=false`;
-            const response = await fetch(url, {
-                method: 'GET',
+        async function getMultiDirections(apiKey, stops) {
+            // Kakao Mobility 다중경유지 API (POST)
+            const origin = { name: stops[0].name, x: stops[0].lng, y: stops[0].lat };
+            const destination = { name: stops[stops.length-1].name, x: stops[stops.length-1].lng, y: stops[stops.length-1].lat };
+            const waypoints = stops.slice(1, -1).map((s, i) => ({ name: s.name, x: s.lng, y: s.lat }));
+
+            const body = {
+                origin, destination, waypoints,
+                priority: 'RECOMMEND',
+                car_fuel: 'GASOLINE',
+                car_hipass: false,
+                alternatives: false,
+                road_details: false
+            };
+
+            const response = await fetch('https://apis-navi.kakaomobility.com/v1/waypoints/directions', {
+                method: 'POST',
                 headers: {
-                    'Authorization': `KakaoAK ${apiKey}`
-                }
+                    'Authorization': `KakaoAK ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
             });
 
             if (!response.ok) {
@@ -1309,27 +1299,41 @@
             }
 
             const data = await response.json();
-            const route = data.routes[0];
-
-            if (!route) {
-                throw new Error('경로를 찾을 수 없습니다.');
+            const route = data.routes && data.routes[0];
+            if (!route) throw new Error('경로를 찾을 수 없습니다.');
+            if (route.result_code && route.result_code !== 0) {
+                throw new Error(`경로 오류: ${route.result_msg || route.result_code}`);
             }
 
-            const summary = route.summary;
-            const duration = Math.ceil(summary.duration / 60); // 초를 분으로 변환
-            const distance = (summary.distance / 1000).toFixed(1); // 미터를 km로 변환
-
-            return {
-                from: startName,
-                to: endName,
-                distance: distance,
-                duration: duration,
-                routes: route.sections || [],
-                startLat: startLat,
-                startLng: startLng,
-                endLat: endLat,
-                endLng: endLng
-            };
+            const sections = route.sections || [];
+            const segments = sections.map((sec, idx) => {
+                const from = stops[idx];
+                const to = stops[idx + 1];
+                // vertexes 평탄화 [x,y,x,y,...] → LatLng[]
+                const vertexes = [];
+                (sec.roads || []).forEach(road => {
+                    const v = road.vertexes || [];
+                    for (let i = 0; i < v.length; i += 2) {
+                        vertexes.push(new kakao.maps.LatLng(v[i+1], v[i]));
+                    }
+                });
+                if (vertexes.length === 0) {
+                    vertexes.push(new kakao.maps.LatLng(from.lat, from.lng));
+                    vertexes.push(new kakao.maps.LatLng(to.lat, to.lng));
+                }
+                return {
+                    from: from.name,
+                    to: to.name,
+                    distance: (sec.distance / 1000).toFixed(1),
+                    duration: Math.ceil(sec.duration / 60),
+                    startLat: from.lat,
+                    startLng: from.lng,
+                    endLat: to.lat,
+                    endLng: to.lng,
+                    vertexes: vertexes
+                };
+            });
+            return segments;
         }
 
         function displayRouteResults() {
@@ -1470,6 +1474,7 @@
                     <div class="route-leg" style="background: #F0F4F8; border-left-color: #8BA7C8;">
                         <div class="distance">${segment.distance} km</div>
                         <div class="time">소요시간: ${segment.duration}분 (체류: ${placeData.stayMin}분)</div>
+                        <div style="margin-top:6px;"><a href="https://map.kakao.com/?sName=${encodeURIComponent(segment.from)}&eName=${encodeURIComponent(segment.to)}" target="_blank" style="display:inline-block;padding:4px 8px;background:#4A7BA7;color:#fff;border-radius:4px;font-size:11px;text-decoration:none;">🗺️ 카카오맵에서 보기</a></div>
                     </div>
                 `;
             }
@@ -1482,6 +1487,7 @@
                     <div class="route-leg" style="background: #F0F4F8; border-left-color: #8BA7C8;">
                         <div class="distance">${segments[3].distance} km</div>
                         <div class="time">소요시간: ${segments[3].duration}분</div>
+                        <div style="margin-top:6px;"><a href="https://map.kakao.com/?sName=${encodeURIComponent(segments[3].from)}&eName=${encodeURIComponent(segments[3].to)}" target="_blank" style="display:inline-block;padding:4px 8px;background:#4A7BA7;color:#fff;border-radius:4px;font-size:11px;text-decoration:none;">🗺️ 카카오맵에서 보기</a></div>
                     </div>
                 </div>
 
@@ -1553,9 +1559,9 @@
                 addMarker(placeData.lat, placeData.lng, place, colors[i]);
             }
 
-            // 경로 그리기
+            // 경로 그리기 (실제 도로 vertexes 사용)
             segments.forEach((seg, idx) => {
-                const points = [
+                const points = (seg.vertexes && seg.vertexes.length > 0) ? seg.vertexes : [
                     new kakao.maps.LatLng(seg.startLat, seg.startLng),
                     new kakao.maps.LatLng(seg.endLat, seg.endLng)
                 ];

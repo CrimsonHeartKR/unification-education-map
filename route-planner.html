@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통일교육 동선 자동화 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            background-color: #F0F4F8;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 헤더 */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #1A3A5C;
+            color: white;
+            padding: 12px 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .api-keys {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .api-input {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 200px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .api-input::placeholder {
+            color: #999;
+        }
+
+        /* 왼쪽 패널 */
+        .left-panel {
+            width: 420px;
+            background: white;
+            overflow-y: auto;
+            margin-top: 50px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-section {
+            padding: 20px;
+            border-bottom: 1px solid #E0E8F0;
+        }
+
+        .panel-section h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A3A5C;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D0D8E0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1A3A5C;
+            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #D0D8E0;
+            border-radius: 4px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #E8EEF5;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: #F0F4F8;
+        }
+
+        .search-result-item .place-name {
+            font-weight: 500;
+            color: #1A3A5C;
+        }
+
+        .search-result-item .place-addr {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #1A3A5C;
+            color: white;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0F2436;
+        }
+
+        .btn-primary:disabled {
+            background-color: #C0C8D0;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #E0E8F0;
+            color: #1A3A5C;
+            margin-top: 8px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #D0D8E0;
+        }
+
+        .btn-print {
+            background-color: #4A7BA7;
+            color: white;
+            margin-top: 8px;
+        }
+
+        .btn-print:hover {
+            background-color: #365F8A;
+        }
+
+        .selected-school {
+            background-color: #F0F4F8;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #1A3A5C;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .selected-school .label {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .selected-school .value {
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .destination-group {
+            background-color: #F8FAFC;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border: 1px solid #E0E8F0;
+        }
+
+        .destination-group h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1A3A5C;
+            margin-bottom: 8px;
+        }
+
+        .destination-item {
+            padding: 8px;
+            background: white;
+            border-radius: 3px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .destination-item .name {
+            font-weight: 500;
+        }
+
+        .destination-item .stay {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .route-results {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .route-summary {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .route-summary.show {
+            display: block;
+        }
+
+        .route-segment {
+            padding: 12px;
+            background: #F8FAFC;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4A7BA7;
+            font-size: 12px;
+        }
+
+        .route-segment .from-to {
+            font-weight: 500;
+            color: #1A3A5C;
+            margin-bottom: 6px;
+        }
+
+        .route-segment .details {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 11px;
+        }
+
+        .schedule-container {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .schedule-container.show {
+            display: block;
+        }
+
+        .schedule-title {
+            font-weight: 600;
+            color: #1A3A5C;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-item {
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #1A3A5C;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #1A3A5C;
+        }
+
+        .timeline-item.arrive::before {
+            background: #4A7BA7;
+        }
+
+        .timeline-item.depart::before {
+            background: #8BA7C8;
+        }
+
+        .timeline-item .time {
+            font-weight: 600;
+            color: #1A3A5C;
+            font-size: 13px;
+        }
+
+        .timeline-item .event {
+            color: #555;
+            margin-top: 2px;
+        }
+
+        .warnings {
+            background: #FFF3CD;
+            border: 1px solid #FFE69C;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .warnings.show {
+            display: block;
+        }
+
+        .warnings h3 {
+            font-size: 12px;
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .warnings ul {
+            font-size: 12px;
+            color: #856404;
+            margin-left: 16px;
+        }
+
+        .warnings li {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        /* 오른쪽 영역 */
+        .right-area {
+            flex: 1;
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            background: #F0F4F8;
+            display: none;
+        }
+
+        .map-fallback {
+            width: 100%;
+            height: 100%;
+            background: #F0F4F8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .map-fallback.show {
+            display: flex;
+        }
+
+        .map-fallback p {
+            margin-bottom: 16px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: white;
+            border-bottom: 1px solid #E0E8F0;
+            order: -1;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            background: #F0F4F8;
+            color: #666;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            background: #1A3A5C;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-mode {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .course-info {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .course-info h3 {
+            font-size: 13px;
+            color: #1A3A5C;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .course-info p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .course-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            color: #888;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #E0E8F0;
+        }
+
+        .route-info {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .route-info h4 {
+            font-size: 12px;
+            color: #1A3A5C;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .route-leg {
+            padding: 10px 0;
+            border-bottom: 1px solid #E0E8F0;
+            font-size: 12px;
+        }
+
+        .route-leg:last-child {
+            border-bottom: none;
+        }
+
+        .route-leg .distance {
+            color: #4A7BA7;
+            font-weight: 600;
+        }
+
+        .route-leg .time {
+            color: #888;
+            font-size: 11px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                height: auto;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .right-area {
+                margin-top: 0;
+                width: 100%;
+            }
+
+            #map {
+                display: none !important;
+            }
+
+            .map-fallback {
+                display: none !important;
+            }
+
+            .tab-buttons {
+                display: none;
+            }
+
+            header {
+                position: static;
+            }
+
+            .tab-content {
+                display: block !important;
+            }
+
+            .print-hide {
+                display: none;
+            }
+        }
+
+        .error-message {
+            background: #F8D7DA;
+            border: 1px solid #F5C6CB;
+            color: #721C24;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #D4EDDA;
+            border: 1px solid #C3E6CB;
+            color: #155724;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #E0E8F0;
+            border-top: 2px solid #1A3A5C;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-map-warning {
+            background: #FFF3CD;
+            border: 1px solid #FFE69C;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .place-warning {
+            background: #FFE8E8;
+            border: 1px solid #FFD0D0;
+            color: #C33;
+            padding: 8px;
+            border-radius: 3px;
+            margin-top: 4px;
+            font-size: 11px;
+        }
+
+        @media (max-width: 1024px) {
+            .left-panel {
+                width: 360px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                width: 100%;
+                height: 50%;
+            }
+
+            .right-area {
+                width: 100%;
+                height: 50%;
+                margin-top: 0;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .api-keys {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .api-input {
+                width: 100%;
+            }
+
+            header h1 {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>통일교육 동선 자동화 시스템</h1>
+        <div class="api-keys">
+            <input type="password" id="restApiKey" class="api-input" placeholder="REST API 키 입력" title="Kakao REST API Key for Directions and Search">
+            <input type="password" id="jsApiKey" class="api-input" placeholder="JS SDK 키 (선택)" title="Kakao Maps JS SDK Key (optional)">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel-section">
+                <h2>학교 검색</h2>
+                <div class="form-group">
+                    <label>학교명 또는 주소</label>
+                    <input type="text" id="schoolSearch" placeholder="예: 서울시 강남구 테헤란로">
+                </div>
+                <div id="schoolResults" class="search-results"></div>
+                <div id="selectedSchool" class="selected-school" style="display: none;">
+                    <div class="label">선택된 학교</div>
+                    <div class="value" id="schoolName"></div>
+                    <div class="value" style="font-size: 11px; margin-top: 4px;" id="schoolAddr"></div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h2>코스 선택</h2>
+                <div class="form-group">
+                    <label>코스명</label>
+                    <select id="courseSelect">
+                        <option value="">-- 코스를 선택하세요 --</option>
+                        <optgroup label="서울 코스">
+                            <option value="S-01">S-01 | 전쟁과 평화, 독립의 길</option>
+                            <option value="S-02">S-02 | 안중근의 하얼빈, 남산에서 만나다</option>
+                            <option value="S-03">S-03 | 독립문에서 임정까지, 자유의 발자국</option>
+                            <option value="S-04">S-04 | 광화문 역사 거리, 대한민국을 걷다</option>
+                            <option value="S-05">S-05 | 민주의 불꽃, 4월의 현장</option>
+                            <option value="S-06">S-06 | 조국을 위한 헌신, 현충원의 울림</option>
+                            <option value="S-07">S-07 | 육사의 정신, 호국의 길</option>
+                        </optgroup>
+                        <optgroup label="경기 코스">
+                            <option value="G-01">G-01 | 분단선에 서다 — DMZ 평화 탐방</option>
+                            <option value="G-02">G-02 | 평화의 철길 — 도라산역과 임진강</option>
+                            <option value="G-03">G-03 | 캠프그리브스에서 평화를 캐다</option>
+                            <option value="G-04">G-04 | DMZ 생태와 역사, 두 얼굴의 접경</option>
+                            <option value="G-05">G-05 | 전곡선사에서 평화의 길로</option>
+                            <option value="G-06">G-06 | 애기봉에서 바라보는 북녘 땅</option>
+                            <option value="G-07">G-07 | 행주대첩과 통일대교</option>
+                            <option value="G-08">G-08 | 정조의 꿈, 실학으로 통일을 상상하다</option>
+                            <option value="G-09">G-09 | 남한산성의 항쟁, 그리고 우리의 선택</option>
+                            <option value="G-10">G-10 | 한민속촌 — 남북 전통문화 비교</option>
+                            <option value="G-11">G-11 | 다산의 실학에서 하남 삼국까지</option>
+                            <option value="G-12">G-12 | 세종대왕의 나라, 한글로 통일을 말하다</option>
+                            <option value="G-13">G-13 | 3·1의 함성과 6·25의 전장</option>
+                            <option value="G-14">G-14 | 일제의 수탈과 항일의 불꽃 — 경기 서남부</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div id="courseWarnings" class="warnings"></div>
+
+                <div id="destinationDisplay" class="destination-group" style="display: none;">
+                    <h4>코스 목적지</h4>
+                    <div id="destinationList"></div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <button class="btn-primary" id="calculateBtn" disabled>동선 계산</button>
+                <button class="btn-print" id="printBtn" disabled style="display: none;">코스 인쇄</button>
+            </div>
+
+            <div class="route-results">
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+                <div id="routeSummary" class="route-summary"></div>
+                <div id="scheduleContainer" class="schedule-container"></div>
+            </div>
+        </div>
+
+        <div class="right-area">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="map">지도</button>
+                <button class="tab-btn" data-tab="text">텍스트 모드</button>
+            </div>
+
+            <div id="mapTab" class="tab-content active">
+                <div id="map"></div>
+                <div id="mapFallback" class="map-fallback">
+                    <p>📍 지도를 표시하려면 헤더에서 Kakao JS SDK 키를 입력하세요.</p>
+                    <p style="font-size: 12px; color: #aaa;">텍스트 모드에서 동선 정보를 확인할 수 있습니다.</p>
+                </div>
+            </div>
+
+            <div id="textTab" class="tab-content">
+                <div class="text-mode">
+                    <div id="textModeContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 코스 데이터
+        const COURSES = [
+            { id:'S-01', region:'서울 용산·중구', name:'전쟁과 평화, 독립의 길', target:'초·중·고',
+                places:['전쟁기념관','국립중앙박물관','백범김구기념관'], warnings:[] },
+            { id:'S-02', region:'서울 중구·용산', name:'안중근의 하얼빈, 남산에서 만나다', target:'초·중·고',
+                places:['안중근의사기념관','남산 역사탐방로','백범김구기념관'], warnings:[] },
+            { id:'S-03', region:'서울 서대문·종로', name:'독립문에서 임정까지, 자유의 발자국', target:'초·중·고',
+                places:['서대문형무소역사관','국립대한민국임시정부기념관','경교장'], warnings:[] },
+            { id:'S-04', region:'서울 종로·여의도', name:'광화문 역사 거리, 대한민국을 걷다', target:'중·고',
+                places:['대한민국역사박물관','국회헌정기념관','서울역사박물관'], warnings:[] },
+            { id:'S-05', region:'서울 강북', name:'민주의 불꽃, 4월의 현장', target:'중·고',
+                places:['국립4·19민주묘지','4·19혁명기념관','북한산 역사탐방(둘레길)'], warnings:[] },
+            { id:'S-06', region:'서울 동작', name:'조국을 위한 헌신, 현충원의 울림', target:'초·중·고',
+                places:['국립서울현충원','효창공원(독립운동가 묘역)','백범김구기념관'], warnings:[] },
+            { id:'S-07', region:'서울 노원', name:'육사의 정신, 호국의 길', target:'중·고',
+                places:['육군사관학교 박물관','태릉·강릉(조선왕릉)','국립통일교육원'],
+                warnings:['군사시설 방문 허가 공문 필수 (2주 전)'] },
+            { id:'G-01', region:'경기 파주 DMZ', name:'분단선에 서다 — DMZ 평화 탐방', target:'중·고',
+                places:['임진각 국민관광지','제3땅굴','도라전망대'],
+                warnings:['안보관광 통합예약 필요'] },
+            { id:'G-02', region:'경기 파주', name:'평화의 철길 — 도라산역과 임진강', target:'초·중·고',
+                places:['도라산역','평화누리공원','오두산통일전망대'], warnings:[] },
+            { id:'G-03', region:'경기 파주', name:'캠프그리브스에서 평화를 캐다', target:'중·고',
+                places:['캠프그리브스','도라산평화공원','임진각 국민관광지'],
+                warnings:['경기관광공사 예약 필수 (2~3주 전)'] },
+            { id:'G-04', region:'경기 연천', name:'DMZ 생태와 역사, 두 얼굴의 접경', target:'중·고',
+                places:['한반도통일미래센터','태풍전망대','호로고루(고구려성곽)'],
+                warnings:['안보관광 통합예약 필요'] },
+            { id:'G-05', region:'경기 연천·동두천', name:'전곡선사에서 평화의 길로', target:'초·중',
+                places:['연천 전곡선사박물관','1·21침투로','동두천 평화문화특구'],
+                warnings:['안보관광 통합예약 필요'] },
+            { id:'G-06', region:'경기 김포', name:'애기봉에서 바라보는 북녘 땅', target:'초·중·고',
+                places:['애기봉평화생태공원','문수산성','한강하구 평화누리길'], warnings:[] },
+            { id:'G-07', region:'경기 고양·파주', name:'행주대첩과 통일대교', target:'초·중·고',
+                places:['행주산성','장항습지생태관','오두산통일전망대'], warnings:[] },
+            { id:'G-08', region:'경기 수원', name:'정조의 꿈, 실학으로 통일을 상상하다', target:'초·중·고',
+                places:['수원 화성(유네스코 세계유산)','수원화성박물관','죽미령 평화공원'],
+                warnings:['대형버스 진입 불가 → 연무대 공영주차장 이용'] },
+            { id:'G-09', region:'경기 광주·용인', name:'남한산성의 항쟁, 그리고 우리의 선택', target:'중·고',
+                places:['남한산성(유네스코 세계유산)','남한산성 역사관','경기도박물관'], warnings:[] },
+            { id:'G-10', region:'경기 용인', name:'한민속촌 — 남북 전통문화 비교', target:'초·중',
+                places:['한국민속촌','경기도어린이박물관','경기도박물관'], warnings:[] },
+            { id:'G-11', region:'경기 남양주·구리·하남', name:'다산의 실학에서 하남 삼국까지', target:'초·중·고',
+                places:['다산 정약용 유적지','구리 동구릉','하남 이성산성 역사공원'], warnings:[] },
+            { id:'G-12', region:'경기 여주·이천', name:'세종대왕의 나라, 한글로 통일을 말하다', target:'초·중·고',
+                places:['여주 영릉(세종대왕릉)','세종대왕역사문화관','이천 세계도자기센터'], warnings:[] },
+            { id:'G-13', region:'경기 안성·평택·오산', name:'3·1의 함성과 6·25의 전장', target:'초·중·고',
+                places:['안성 3·1운동 기념관','평택 6·25 전적지·평화공원','죽미령 평화공원'], warnings:[] },
+            { id:'G-14', region:'경기 광명·안산·시흥', name:'일제의 수탈과 항일의 불꽃 — 경기 서남부', target:'중·고',
+                places:['광명 가학광산 역사관','안산 독립운동 역사길','시흥 갯골 생태공원'], warnings:[] }
+        ];
+
+        // 장소 데이터
+        const PLACES = {
+            '전쟁기념관': {lat:37.536, lng:126.9772, addr:'서울 용산구 이태원로 29', fee:'무료', stayMin:120, busOk:true},
+            '국립중앙박물관': {lat:37.5239, lng:126.9805, addr:'서울 용산구 서빙고로 137', fee:'무료(상설)', stayMin:90, busOk:true},
+            '백범김구기념관': {lat:37.5285, lng:126.9632, addr:'서울 용산구 임정로 26', fee:'무료', stayMin:60, busOk:true},
+            '안중근의사기념관': {lat:37.5513, lng:126.9882, addr:'서울 중구 소파로 1', fee:'무료', stayMin:60, busOk:false},
+            '남산 역사탐방로': {lat:37.5512, lng:126.9882, addr:'서울 중구 남산공원길', fee:'무료', stayMin:90, busOk:false},
+            '서대문형무소역사관': {lat:37.5724, lng:126.9606, addr:'서울 서대문구 통일로 251', fee:'3,000원', stayMin:90, busOk:true},
+            '국립대한민국임시정부기념관': {lat:37.5716, lng:126.9614, addr:'서울 서대문구 통일로 257', fee:'무료', stayMin:60, busOk:true},
+            '경교장': {lat:37.5679, lng:126.9665, addr:'서울 종로구 새문안로 29', fee:'무료', stayMin:40, busOk:false},
+            '대한민국역사박물관': {lat:37.5757, lng:126.9769, addr:'서울 종로구 세종대로 198', fee:'무료', stayMin:90, busOk:false},
+            '국회헌정기념관': {lat:37.5318, lng:126.9145, addr:'서울 영등포구 의사당대로 1', fee:'무료', stayMin:60, busOk:true},
+            '서울역사박물관': {lat:37.5701, lng:126.9697, addr:'서울 종로구 새문안로 55', fee:'무료', stayMin:60, busOk:true},
+            '국립4·19민주묘지': {lat:37.6457, lng:127.0112, addr:'서울 강북구 4.19로 17', fee:'무료', stayMin:60, busOk:true},
+            '4·19혁명기념관': {lat:37.6439, lng:127.0126, addr:'서울 강북구 4.19로 8길 17', fee:'무료', stayMin:60, busOk:true},
+            '북한산 역사탐방(둘레길)': {lat:37.66, lng:126.9867, addr:'서울 강북구 북한산둘레길', fee:'무료', stayMin:120, busOk:false},
+            '국립서울현충원': {lat:37.501, lng:126.9785, addr:'서울 동작구 현충로 210', fee:'무료', stayMin:90, busOk:true},
+            '효창공원(독립운동가 묘역)': {lat:37.5386, lng:126.9618, addr:'서울 용산구 효창원로 177', fee:'무료', stayMin:60, busOk:true},
+            '육군사관학교 박물관': {lat:37.6258, lng:127.0793, addr:'서울 노원구 화랑로 574', fee:'무료', stayMin:90, busOk:true},
+            '태릉·강릉(조선왕릉)': {lat:37.6196, lng:127.0756, addr:'서울 노원구 화랑로 681', fee:'1,000원', stayMin:60, busOk:true},
+            '국립통일교육원': {lat:37.6421, lng:127.0224, addr:'서울 강북구 솔매로 48', fee:'무료', stayMin:60, busOk:true},
+            '임진각 국민관광지': {lat:37.8867, lng:126.7408, addr:'경기 파주시 문산읍 임진각로 148-53', fee:'무료(일부 유료)', stayMin:90, busOk:true},
+            '제3땅굴': {lat:37.9022, lng:126.7167, addr:'경기 파주시 군내면 판문점로', fee:'3,000원', stayMin:60, busOk:true},
+            '도라전망대': {lat:37.9042, lng:126.6877, addr:'경기 파주시 군내면', fee:'500원', stayMin:40, busOk:true},
+            '도라산역': {lat:37.8989, lng:126.7012, addr:'경기 파주시 장단면', fee:'무료', stayMin:40, busOk:true},
+            '평화누리공원': {lat:37.8847, lng:126.7415, addr:'경기 파주시 문산읍 마정리', fee:'무료', stayMin:60, busOk:true},
+            '오두산통일전망대': {lat:37.7497, lng:126.6867, addr:'경기 파주시 탄현면 성동로 369', fee:'3,000원', stayMin:60, busOk:true},
+            '캠프그리브스': {lat:37.8909, lng:126.7483, addr:'경기 파주시 군내면 민통선로 76', fee:'프로그램별 상이', stayMin:120, busOk:true},
+            '도라산평화공원': {lat:37.905, lng:126.695, addr:'경기 파주시 군내면', fee:'무료', stayMin:60, busOk:true},
+            '한반도통일미래센터': {lat:38.0217, lng:127.0567, addr:'경기 연천군 연천읍 통일로 2952', fee:'프로그램별 상이', stayMin:90, busOk:true},
+            '태풍전망대': {lat:38.0508, lng:127.1167, addr:'경기 연천군 중면', fee:'무료', stayMin:40, busOk:true},
+            '호로고루(고구려성곽)': {lat:38.0042, lng:127.0067, addr:'경기 연천군 장남면', fee:'무료', stayMin:60, busOk:true},
+            '연천 전곡선사박물관': {lat:37.9722, lng:127.0614, addr:'경기 연천군 전곡읍 양연로 1510', fee:'4,000원', stayMin:90, busOk:true},
+            '1·21침투로': {lat:38.02, lng:127.08, addr:'경기 연천군 중면', fee:'무료', stayMin:60, busOk:true},
+            '동두천 평화문화특구': {lat:37.9033, lng:127.0608, addr:'경기 동두천시', fee:'1,000원', stayMin:60, busOk:true},
+            '애기봉평화생태공원': {lat:37.7042, lng:126.6275, addr:'경기 김포시 하성면', fee:'무료', stayMin:90, busOk:true},
+            '문수산성': {lat:37.7183, lng:126.5833, addr:'경기 김포시 월곶면', fee:'무료', stayMin:60, busOk:false},
+            '한강하구 평화누리길': {lat:37.7, lng:126.6, addr:'경기 김포시 하성면', fee:'무료', stayMin:90, busOk:false},
+            '행주산성': {lat:37.596, lng:126.8254, addr:'경기 고양시 덕양구 행주로 15', fee:'무료', stayMin:60, busOk:true},
+            '장항습지생태관': {lat:37.615, lng:126.756, addr:'경기 고양시 일산서구', fee:'무료', stayMin:60, busOk:true},
+            '수원 화성(유네스코 세계유산)': {lat:37.2866, lng:127.0098, addr:'경기 수원시 팔달구 정조로 825', fee:'1,000원', stayMin:120, busOk:false},
+            '수원화성박물관': {lat:37.2842, lng:127.0162, addr:'경기 수원시 팔달구 창룡대로 21', fee:'2,000원', stayMin:60, busOk:true},
+            '죽미령 평화공원': {lat:37.1608, lng:127.0775, addr:'경기 오산시 경기대로 714', fee:'무료', stayMin:60, busOk:true},
+            '남한산성(유네스코 세계유산)': {lat:37.4792, lng:127.1792, addr:'경기 광주시 남한산성면', fee:'2,000원(행궁)', stayMin:120, busOk:true},
+            '남한산성 역사관': {lat:37.4786, lng:127.18, addr:'경기 광주시 남한산성면', fee:'무료', stayMin:60, busOk:true},
+            '경기도박물관': {lat:37.2344, lng:127.2027, addr:'경기 용인시 기흥구 상갈로 6', fee:'무료', stayMin:60, busOk:true},
+            '한국민속촌': {lat:37.2597, lng:127.1186, addr:'경기 용인시 기흥구 민속촌로 90', fee:'20,000원(단체할인)', stayMin:150, busOk:true},
+            '경기도어린이박물관': {lat:37.2358, lng:127.2039, addr:'경기 용인시 기흥구 상갈로 6', fee:'4,000원', stayMin:90, busOk:true},
+            '다산 정약용 유적지': {lat:37.5856, lng:127.1467, addr:'경기 남양주시 조안면 다산로 747번길 11', fee:'무료', stayMin:60, busOk:true},
+            '구리 동구릉': {lat:37.6153, lng:127.1297, addr:'경기 구리시 동구릉로 197', fee:'1,000원', stayMin:60, busOk:true},
+            '하남 이성산성 역사공원': {lat:37.5233, lng:127.1867, addr:'경기 하남시 춘궁동', fee:'무료', stayMin:60, busOk:true},
+            '여주 영릉(세종대왕릉)': {lat:37.311, lng:127.665, addr:'경기 여주시 능서면 영릉로 269-50', fee:'500원', stayMin:60, busOk:true},
+            '세종대왕역사문화관': {lat:37.312, lng:127.665, addr:'경기 여주시 능서면 영릉로', fee:'무료', stayMin:60, busOk:true},
+            '이천 세계도자기센터': {lat:37.2422, lng:127.4567, addr:'경기 이천시 경충대로 2697번길 263', fee:'프로그램별 상이', stayMin:90, busOk:true},
+            '안성 3·1운동 기념관': {lat:37.0078, lng:127.2797, addr:'경기 안성시 원곡면', fee:'무료', stayMin:60, busOk:true},
+            '평택 6·25 전적지·평화공원': {lat:37.0017, lng:127.0533, addr:'경기 평택시', fee:'무료', stayMin:60, busOk:true},
+            '광명 가학광산 역사관': {lat:37.4422, lng:126.87, addr:'경기 광명시 가학로85번길 142', fee:'4,000원', stayMin:90, busOk:true},
+            '안산 독립운동 역사길': {lat:37.3217, lng:126.8308, addr:'경기 안산시 상록구', fee:'무료', stayMin:60, busOk:false},
+            '시흥 갯골 생태공원': {lat:37.3808, lng:126.7833, addr:'경기 시흥시 동서로 287', fee:'무료', stayMin:90, busOk:true},
+        };
+
+        // 코스별 입장료·서류·준비물 안내 (종합계획_v2 연동)
+        const PLACE_INFO = {
+            '임진각 국민관광지': {grade:'一般',docs:'학생 명단(인원), 인솔교사 신분증',deadline:'예약 불필요',prep:'학생명단(인솔자 보관)',reserve:'불필요',caution:'독개다리 스카이워크 2026 공사 확인'},
+            '국립6.25전쟁납북자기념관': {grade:'一般',docs:'학생 명단(인원), 인솔교사 신분증',deadline:'방문 7~10일 전 (홈페이지)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지 단체예약',caution:'입장 마감 30분 전'},
+            '오두산통일전망대': {grade:'中 (안보지역)',docs:'학생 명단(인원), 인솔교사 신분증',deadline:'방문 3~5일 전 (전화/홈)',prep:'신분증(전원) · 입장료 현금 · 편한 복장 · 학생명단(인솔자 보관)',reserve:'전화예약(단체)',caution:'VR 통일체험 사전예약'},
+            '한반도통일미래센터': {grade:'一般',docs:'학생 명단, 안보관광지 신청서(팩스), 전원 신분증',deadline:'방문 7~10일 전 (홈페이지)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지 사전신청',caution:'숙박 연수도 가능'},
+            '열쇠전망대': {grade:'高 (군/안보)',docs:'학생 명단, 안보관광지 신청서(팩스), 전원 신분증',deadline:'방문 7일 전 (팩스/홈)',prep:'신분증(전원) · 학생명단(인솔자 보관)',reserve:'25인↑ 7일 전 팩스신청 (031-839-2486)',caution:'신분증 필수 자전거·도보 불가'},
+            '호로고루(고구려성곽)': {grade:'一般',docs:'학생 명단, 안보관광지 신청서(팩스), 전원 신분증',deadline:'예약 불필요',prep:'우비/우산 · 학생명단(인솔자 보관)',reserve:'불필요',caution:'야외 유적지'},
+            '애기봉평화생태공원': {grade:'中 (안보지역)',docs:'학생 명단, 인솔교사 연락처',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지 예약',caution:'전시관+전망대 복합'},
+            '강화평화전망대': {grade:'中 (안보지역)',docs:'학생 명단, 인솔교사 연락처',deadline:'방문 3~5일 전 (전화/홈)',prep:'입장료 현금 · 학생명단(인솔자 보관)',reserve:'단체 전화예약',caution:'망원경 500원/회'},
+            '연미정·월곶돈대': {grade:'一般',docs:'학생 명단, 인솔교사 연락처',deadline:'예약 불필요',prep:'우비/우산 · 학생명단(인솔자 보관)',reserve:'불필요',caution:'야외 유적 한강·임진강 합류점 조망'},
+            '인천상륙작전기념관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'전화예약(단체)',caution:''},
+            '자유공원(맥아더동상)': {grade:'一般',docs:'학생 명단',deadline:'예약 불필요',prep:'우비/우산 · 학생명단(인솔자 보관)',reserve:'불필요',caution:'야외 공원 도보 탐방'},
+            '인천통일관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'전화예약',caution:''},
+            '전쟁기념관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지 단체예약',caution:'어린이박물관 별도 예약'},
+            '서울함공원': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'입장료 현금 · 우비/우산 · 학생명단(인솔자 보관)',reserve:'20인↑ 단체 사전예약',caution:'한강변 위치 실내+야외 혼합'},
+            '백범김구기념관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'전화예약',caution:''},
+            '서대문형무소역사관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'입장료 현금 · 우비/우산 · 학생명단(인솔자 보관)',reserve:'홈페이지 단체예약',caution:'체험프로그램 운영'},
+            '국립대한민국임시정부기념관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지',caution:''},
+            '서울통일관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지 사전신청',caution:'통일부 운영'},
+            '국립서울현충원': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'우비/우산 · 학생명단(인솔자 보관)',reserve:'홈페이지 단체예약',caution:''},
+            '효창공원(독립운동가 묘역)': {grade:'一般',docs:'학생 명단',deadline:'예약 불필요',prep:'우비/우산 · 학생명단(인솔자 보관)',reserve:'불필요',caution:'야외 묘역'},
+            '서해수호관(해군2함대)': {grade:'高 (군/안보)',docs:'전원 신분증, 견학신청서(해군)',deadline:'방문 7일 전 (팩스/홈)',prep:'신분증(전원) · 학생명단(인솔자 보관)',reserve:'해군 홈페이지 견학신청 또는 팩스(7일 전)',caution:'군부대 내 신분증 필수'},
+            '평택항 홍보관': {grade:'一般',docs:'전원 신분증, 견학신청서(해군)',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'사전 문의',caution:''},
+            '죽미령 평화공원': {grade:'一般',docs:'전원 신분증, 견학신청서(해군)',deadline:'예약 불필요',prep:'학생명단(인솔자 보관)',reserve:'불필요',caution:'스미스부대 전투 기념'},
+            '육군사관학교 박물관': {grade:'高 (군/안보)',docs:'공문(학교장→육사), 전원 신분증, 학생 명단',deadline:'방문 14일 전 (공문)',prep:'신분증(전원) · 학생명단(인솔자 보관)',reserve:'공문 허가 필수(2주 전)',caution:'군사시설 신분증+사전허가'},
+            '다산 정약용 유적지': {grade:'一般',docs:'공문(학교장→육사), 전원 신분증, 학생 명단',deadline:'예약 불필요',prep:'우비/우산 · 학생명단(인솔자 보관)',reserve:'불필요',caution:'실학정신 교육'},
+            '구리 동구릉': {grade:'一般',docs:'공문(학교장→육사), 전원 신분증, 학생 명단',deadline:'예약 불필요',prep:'입장료 현금 · 우비/우산 · 학생명단(인솔자 보관)',reserve:'불필요',caution:'세계유산'},
+            '한탄강 세계지질공원센터': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'학생명단(인솔자 보관)',reserve:'홈페이지/전화 단체예약',caution:'유네스코 세계지질공원'},
+            '연천 전곡선사박물관': {grade:'一般',docs:'학생 명단',deadline:'방문 3~5일 전 (전화/홈)',prep:'입장료 현금 · 학생명단(인솔자 보관)',reserve:'홈페이지 단체예약',caution:'구석기 체험 프로그램'},
+        };
+
+        let selectedSchool = null;
+        let selectedCourse = null;
+        let currentRoute = null;
+        let map = null;
+        let markers = [];
+        let polylines = [];
+
+        // 이벤트 리스너
+        document.getElementById('schoolSearch').addEventListener('input', debounce(searchSchool, 500));
+        document.getElementById('courseSelect').addEventListener('change', handleCourseSelect);
+        document.getElementById('calculateBtn').addEventListener('click', calculateRoute);
+        document.getElementById('printBtn').addEventListener('click', printRoute);
+
+        // 탭 버튼
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            });
+        });
+
+        // Kakao Maps 초기화
+        const jsApiKey = document.getElementById('jsApiKey');
+        jsApiKey.addEventListener('change', initializeMap);
+
+        // 유틸리티 함수
+        function debounce(fn, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // 학교 검색
+        async function searchSchool(e) {
+            const query = e.target.value.trim();
+            const resultsEl = document.getElementById('schoolResults');
+
+            if (query.length < 2) {
+                resultsEl.classList.remove('show');
+                return;
+            }
+
+            const restApiKey = document.getElementById('restApiKey').value.trim();
+            if (!restApiKey) {
+                showError('REST API 키를 입력하세요.');
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}&size=10`,
+                    {
+                        headers: {
+                            'Authorization': `KakaoAK ${restApiKey}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('API 요청 실패');
+                }
+
+                const data = await response.json();
+                const places = data.documents || [];
+
+                if (places.length === 0) {
+                    resultsEl.innerHTML = '<div class="search-result-item">검색 결과가 없습니다.</div>';
+                    resultsEl.classList.add('show');
+                    return;
+                }
+
+                resultsEl.innerHTML = places.map(place => `
+                    <div class="search-result-item" data-lat="${place.y}" data-lng="${place.x}" data-name="${place.place_name}" data-addr="${place.road_address_name || place.address_name}">
+                        <div class="place-name">${place.place_name}</div>
+                        <div class="place-addr">${place.road_address_name || place.address_name}</div>
+                    </div>
+                `).join('');
+
+                resultsEl.classList.add('show');
+
+                resultsEl.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => selectSchool(item));
+                });
+            } catch (error) {
+                showError('학교 검색 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        function selectSchool(item) {
+            selectedSchool = {
+                name: item.dataset.name,
+                addr: item.dataset.addr,
+                lat: parseFloat(item.dataset.lat),
+                lng: parseFloat(item.dataset.lng)
+            };
+
+            document.getElementById('schoolName').textContent = selectedSchool.name;
+            document.getElementById('schoolAddr').textContent = selectedSchool.addr;
+            document.getElementById('selectedSchool').style.display = 'block';
+            document.getElementById('schoolResults').classList.remove('show');
+            document.getElementById('schoolSearch').value = '';
+
+            updateCalculateButton();
+        }
+
+        // 코스 선택
+        function handleCourseSelect(e) {
+            const courseId = e.target.value;
+
+            if (!courseId) {
+                selectedCourse = null;
+                document.getElementById('destinationDisplay').style.display = 'none';
+                document.getElementById('courseWarnings').classList.remove('show');
+                updateCalculateButton();
+                return;
+            }
+
+            selectedCourse = COURSES.find(c => c.id === courseId);
+
+            if (selectedCourse) {
+                displayDestinations();
+                displayWarnings();
+                updateCalculateButton();
+            }
+        }
+
+        function displayDestinations() {
+            const group = document.getElementById('destinationDisplay');
+            const list = document.getElementById('destinationList');
+
+            if (!selectedCourse) return;
+
+            list.innerHTML = selectedCourse.places.map((place, idx) => {
+                const placeData = PLACES[place];
+                const info = PLACE_INFO[place];
+                const warning = placeData && !placeData.busOk ? '<div class="place-warning">🚌 대형버스 진입 불가</div>' : '';
+                let badge = '';
+                let infoBlock = '';
+                if (info) {
+                    const gradeColor = info.grade.indexOf('高') >= 0 ? '#d32f2f'
+                                     : info.grade.indexOf('中') >= 0 ? '#f57c00' : '#388e3c';
+                    badge = `<span style="display:inline-block;padding:2px 8px;margin-left:6px;border-radius:10px;font-size:11px;color:#fff;background:${gradeColor};">${info.grade}</span>`;
+                    infoBlock = `
+                        <div style="margin-top:6px;padding:8px;background:#f5f7fa;border-left:3px solid #1F3864;border-radius:4px;font-size:12px;line-height:1.6;">
+                            <div>💰 <b>입장료</b> ${placeData ? placeData.fee : '-'}</div>
+                            <div>📋 <b>필요서류</b> ${info.docs || '-'}</div>
+                            <div>⏰ <b>사전신청</b> ${info.deadline || '-'}</div>
+                            <div>🎒 <b>준비물</b> ${info.prep || '-'}</div>
+                            <div>📞 <b>예약</b> ${info.reserve || '-'}</div>
+                            ${info.caution ? `<div>⚠️ <b>주의</b> ${info.caution}</div>` : ''}
+                        </div>`;
+                }
+                return `
+                    <div class="destination-item" style="flex-direction:column;align-items:stretch;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+                            <div>
+                                <div class="name">${idx + 1}. ${place}${badge}</div>
+                                ${warning}
+                            </div>
+                            <div class="stay">${placeData ? placeData.stayMin + '분' : '?'}</div>
+                        </div>
+                        ${infoBlock}
+                    </div>
+                `;
+            }).join('');
+
+            group.style.display = 'block';
+        }
+
+        function displayWarnings() {
+            const warningsEl = document.getElementById('courseWarnings');
+
+            if (!selectedCourse || selectedCourse.warnings.length === 0) {
+                warningsEl.classList.remove('show');
+                return;
+            }
+
+            warningsEl.innerHTML = `
+                <h3>⚠️ 주의사항</h3>
+                <ul>
+                    ${selectedCourse.warnings.map(w => `<li>${w}</li>`).join('')}
+                </ul>
+            `;
+            warningsEl.classList.add('show');
+        }
+
+        function updateCalculateButton() {
+            const btn = document.getElementById('calculateBtn');
+            btn.disabled = !selectedSchool || !selectedCourse;
+        }
+
+        // 동선 계산
+        async function calculateRoute() {
+            if (!selectedSchool || !selectedCourse) {
+                showError('학교와 코스를 선택하세요.');
+                return;
+            }
+
+            const restApiKey = document.getElementById('restApiKey').value.trim();
+            if (!restApiKey) {
+                showError('REST API 키를 입력하세요.');
+                return;
+            }
+
+            const btn = document.getElementById('calculateBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>계산 중...';
+
+            try {
+                const places = selectedCourse.places;
+                const segments = [];
+
+                // 세 개의 구간 계산: 학교→장소1, 장소1→장소2, 장소2→장소3, 장소3→학교
+                const legs = [
+                    { from: 'school', to: places[0] },
+                    { from: places[0], to: places[1] },
+                    { from: places[1], to: places[2] },
+                    { from: places[2], to: 'school' }
+                ];
+
+                for (const leg of legs) {
+                    const fromCoords = leg.from === 'school'
+                        ? selectedSchool
+                        : PLACES[leg.from];
+                    const toCoords = leg.to === 'school'
+                        ? selectedSchool
+                        : PLACES[leg.to];
+
+                    const fromName = leg.from === 'school' ? selectedSchool.name : leg.from;
+                    const toName = leg.to === 'school' ? selectedSchool.name : leg.to;
+
+                    const segment = await getDirections(
+                        restApiKey,
+                        fromCoords.lat,
+                        fromCoords.lng,
+                        toCoords.lat,
+                        toCoords.lng,
+                        fromName,
+                        toName
+                    );
+
+                    segments.push(segment);
+                }
+
+                currentRoute = {
+                    school: selectedSchool,
+                    course: selectedCourse,
+                    segments: segments
+                };
+
+                displayRouteResults();
+                updateMapDisplay();
+                showSuccess('동선이 계산되었습니다.');
+                document.getElementById('printBtn').style.display = 'block';
+
+            } catch (error) {
+                showError('동선 계산 중 오류: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '동선 계산';
+            }
+        }
+
+        async function getDirections(apiKey, startLat, startLng, endLat, endLng, startName, endName) {
+            const response = await fetch('https://apis-navi.kakaomobility.com/v1/directions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `KakaoAK ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    origin: { x: startLng, y: startLat },
+                    destination: { x: endLng, y: endLat },
+                    priority: 'RECOMMEND'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('경로 계산 API 오류');
+            }
+
+            const data = await response.json();
+            const route = data.routes[0];
+
+            if (!route) {
+                throw new Error('경로를 찾을 수 없습니다.');
+            }
+
+            const summary = route.summary;
+            const duration = Math.ceil(summary.duration / 60); // 초를 분으로 변환
+            const distance = (summary.distance / 1000).toFixed(1); // 미터를 km로 변환
+
+            return {
+                from: startName,
+                to: endName,
+                distance: distance,
+                duration: duration,
+                routes: route.sections || [],
+                startLat: startLat,
+                startLng: startLng,
+                endLat: endLat,
+                endLng: endLng
+            };
+        }
+
+        function displayRouteResults() {
+            displayRouteSummary();
+            displaySchedule();
+            displayTextMode();
+        }
+
+        function displayRouteSummary() {
+            const summaryEl = document.getElementById('routeSummary');
+            const segments = currentRoute.segments;
+
+            const html = `
+                <h3 style="margin-bottom: 12px; color: #1A3A5C;">동선 요약</h3>
+                ${segments.map((seg, idx) => `
+                    <div class="route-segment">
+                        <div class="from-to">${idx + 1}. ${seg.from} → ${seg.to}</div>
+                        <div class="details">
+                            <span class="distance">${seg.distance} km</span>
+                            <span class="time">${seg.duration}분</span>
+                        </div>
+                    </div>
+                `).join('')}
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E0E8F0; font-size: 12px; color: #666;">
+                    <strong>총 이동거리:</strong> ${segments.reduce((sum, s) => sum + parseFloat(s.distance), 0).toFixed(1)} km<br>
+                    <strong>총 이동시간:</strong> ${segments.reduce((sum, s) => sum + s.duration, 0)}분
+                </div>
+            `;
+
+            summaryEl.innerHTML = html;
+            summaryEl.classList.add('show');
+        }
+
+        function displaySchedule() {
+            const scheduleEl = document.getElementById('scheduleContainer');
+            const segments = currentRoute.segments;
+            const places = currentRoute.course.places;
+
+            let currentTime = 8 * 60 + 30; // 08:30
+            const timeline = [];
+
+            timeline.push({
+                time: formatTime(currentTime),
+                event: '학교 출발',
+                type: 'depart'
+            });
+
+            // 각 장소 방문
+            for (let i = 0; i < places.length; i++) {
+                currentTime += segments[i].duration;
+                timeline.push({
+                    time: formatTime(currentTime),
+                    event: `${places[i]} 도착`,
+                    type: 'arrive'
+                });
+
+                const stayMin = PLACES[places[i]].stayMin;
+                currentTime += stayMin;
+
+                timeline.push({
+                    time: formatTime(currentTime),
+                    event: `${places[i]} 출발 (${stayMin}분 체류)`,
+                    type: 'depart'
+                });
+            }
+
+            // 학교 귀교
+            currentTime += segments[3].duration;
+            timeline.push({
+                time: formatTime(currentTime),
+                event: '학교 귀교',
+                type: 'arrive'
+            });
+
+            const html = `
+                <div class="schedule-title">📅 일정표 (08:30 출발 기준)</div>
+                <div class="timeline">
+                    ${timeline.map(item => `
+                        <div class="timeline-item ${item.type}">
+                            <div class="time">${item.time}</div>
+                            <div class="event">${item.event}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            scheduleEl.innerHTML = html;
+            scheduleEl.classList.add('show');
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        }
+
+        function displayTextMode() {
+            const textEl = document.getElementById('textModeContent');
+            const segments = currentRoute.segments;
+            const places = currentRoute.course.places;
+
+            let html = `
+                <div class="course-info">
+                    <h3>${currentRoute.course.id} | ${currentRoute.course.name}</h3>
+                    <p>${currentRoute.course.region}</p>
+                    <div class="course-meta">
+                        <div>🎯 대상: ${currentRoute.course.target}</div>
+                        <div>📍 3개 장소</div>
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <h4>학교 출발점</h4>
+                    <div class="route-leg">
+                        <strong>${currentRoute.school.name}</strong><br>
+                        <div style="font-size: 11px; color: #888; margin-top: 4px;">${currentRoute.school.addr}</div>
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <h4>방문 장소 및 이동 경로</h4>
+            `;
+
+            for (let i = 0; i < places.length; i++) {
+                const place = places[i];
+                const placeData = PLACES[place];
+                const segment = segments[i];
+
+                html += `
+                    <div class="route-leg">
+                        <div style="margin-bottom: 6px;">
+                            <strong>${i + 1}. ${place}</strong>
+                            <span style="color: #888; font-size: 11px;">입장료: ${placeData.fee}</span>
+                        </div>
+                        <div style="font-size: 11px; color: #888;">${placeData.addr}</div>
+                        ${!placeData.busOk ? '<div style="color: #C33; font-size: 11px; margin-top: 4px;">🚌 대형버스 진입 불가</div>' : ''}
+                    </div>
+                    <div class="route-leg" style="background: #F0F4F8; border-left-color: #8BA7C8;">
+                        <div class="distance">${segment.distance} km</div>
+                        <div class="time">소요시간: ${segment.duration}분 (체류: ${placeData.stayMin}분)</div>
+                    </div>
+                `;
+            }
+
+            html += `
+                    <div class="route-leg">
+                        <strong>귀교</strong><br>
+                        <div style="font-size: 11px; color: #888; margin-top: 4px;">${currentRoute.school.name}</div>
+                    </div>
+                    <div class="route-leg" style="background: #F0F4F8; border-left-color: #8BA7C8;">
+                        <div class="distance">${segments[3].distance} km</div>
+                        <div class="time">소요시간: ${segments[3].duration}분</div>
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <h4>📊 통계</h4>
+                    <div class="route-leg">
+                        <div>총 이동거리: <strong>${segments.reduce((sum, s) => sum + parseFloat(s.distance), 0).toFixed(1)} km</strong></div>
+                        <div>총 이동시간: <strong>${segments.reduce((sum, s) => sum + s.duration, 0)}분</strong></div>
+                        <div>총 체류시간: <strong>${places.reduce((sum, p) => sum + PLACES[p].stayMin, 0)}분</strong></div>
+                    </div>
+                </div>
+            `;
+
+            textEl.innerHTML = html;
+        }
+
+        // 지도 표시
+        function initializeMap() {
+            const key = document.getElementById('jsApiKey').value.trim();
+            if (!key) return;
+
+            const script = document.createElement('script');
+            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}`;
+            script.onload = () => {
+                const container = document.getElementById('map');
+                const options = {
+                    center: new kakao.maps.LatLng(37.5, 127),
+                    level: 8
+                };
+                map = new kakao.maps.Map(container, options);
+                document.getElementById('mapFallback').classList.remove('show');
+                document.getElementById('map').style.display = 'block';
+                if (currentRoute) updateMapDisplay();
+            };
+            script.onerror = () => {
+                showError('지도 SDK 로드 실패');
+            };
+            document.head.appendChild(script);
+        }
+
+        function updateMapDisplay() {
+            if (!map || !currentRoute) return;
+
+            // 기존 마커, 폴리라인 제거
+            markers.forEach(m => m.setMap(null));
+            polylines.forEach(p => p.setMap(null));
+            markers = [];
+            polylines = [];
+
+            const segments = currentRoute.segments;
+            const places = currentRoute.course.places;
+
+            // 학교 마커 (초록색)
+            addMarker(
+                currentRoute.school.lat,
+                currentRoute.school.lng,
+                currentRoute.school.name,
+                '#00AA00'
+            );
+
+            // 장소 마커
+            const colors = ['#4A7BA7', '#6A9BC8', '#8BA7C8'];
+            for (let i = 0; i < places.length; i++) {
+                const place = places[i];
+                const placeData = PLACES[place];
+                addMarker(placeData.lat, placeData.lng, place, colors[i]);
+            }
+
+            // 경로 그리기
+            segments.forEach((seg, idx) => {
+                const points = [
+                    new kakao.maps.LatLng(seg.startLat, seg.startLng),
+                    new kakao.maps.LatLng(seg.endLat, seg.endLng)
+                ];
+
+                const polyline = new kakao.maps.Polyline({
+                    path: points,
+                    strokeWeight: 3,
+                    strokeColor: '#4A7BA7',
+                    strokeOpacity: 0.7,
+                    strokeStyle: 'solid'
+                });
+
+                polyline.setMap(map);
+                polylines.push(polyline);
+            });
+
+            // 지도 범위 조정
+            fitMapBounds();
+        }
+
+        function addMarker(lat, lng, title, color) {
+            const markerImage = new kakao.maps.MarkerImage(
+                `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='${encodeURIComponent(color)}'/%3E%3C/svg%3E`,
+                new kakao.maps.Size(24, 24),
+                new kakao.maps.Point(12, 12)
+            );
+
+            const marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(lat, lng),
+                title: title,
+                image: markerImage
+            });
+
+            marker.setMap(map);
+            markers.push(marker);
+        }
+
+        function fitMapBounds() {
+            if (markers.length === 0) return;
+
+            const bounds = new kakao.maps.LatLngBounds();
+            markers.forEach(m => {
+                bounds.extend(m.getPosition());
+            });
+
+            map.setBounds(bounds);
+        }
+
+        // 인쇄
+        function printRoute() {
+            window.print();
+        }
+
+        // 초기 설정
+        document.getElementById('mapFallback').classList.add('show');
+        updateCalculateButton();
+    </script>
+</body>
+</html>

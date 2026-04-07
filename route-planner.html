@@ -1440,20 +1440,22 @@
             if (!key) return;
 
             const script = document.createElement('script');
-            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}`;
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`;
             script.onload = () => {
-                const container = document.getElementById('map');
-                const options = {
-                    center: new kakao.maps.LatLng(37.5, 127),
-                    level: 8
-                };
-                map = new kakao.maps.Map(container, options);
-                document.getElementById('mapFallback').classList.remove('show');
-                document.getElementById('map').style.display = 'block';
-                if (currentRoute) updateMapDisplay();
+                kakao.maps.load(() => {
+                    const container = document.getElementById('map');
+                    const options = {
+                        center: new kakao.maps.LatLng(37.5, 127),
+                        level: 8
+                    };
+                    map = new kakao.maps.Map(container, options);
+                    document.getElementById('mapFallback').classList.remove('show');
+                    document.getElementById('map').style.display = 'block';
+                    if (currentRoute) updateMapDisplay();
+                });
             };
             script.onerror = () => {
-                showError('지도 SDK 로드 실패');
+                showError('지도 SDK 로드 실패 - 카카오 콘솔의 도메인 등록을 확인하세요');
             };
             document.head.appendChild(script);
         }

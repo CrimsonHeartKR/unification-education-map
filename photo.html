@@ -1722,10 +1722,9 @@
                 const fileName = `강화DMZ_${appState.date}_${Date.now()}.jpg`;
                 const file = new File([blob], fileName, { type: 'image/jpeg' });
 
+                // 사진 파일만 공유 (장소/안내 문구·하이퍼링크 일절 포함하지 않음)
                 const shareData = {
-                    files: [file],
-                    title: '강화 DMZ 평화의 길',
-                    text: `${appState.place} #강화DMZ #평화의길`
+                    files: [file]
                 };
 
                 // 2) Web Share API Level 2 — 파일 공유 가능 여부 확인

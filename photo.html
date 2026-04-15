@@ -24,51 +24,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
-        /* 모바일 가로 회전 시 컨테이너를 역회전하여 세로 레이아웃 강제 유지 */
-        /* (카메라 영상은 그대로 캡처되어 가로 사진 저장 가능) */
-        @media (orientation: landscape) and (max-width: 900px) and (pointer: coarse) {
-            html, body {
-                overflow: hidden;
-            }
-            .container {
-                position: fixed;
-                top: 0;
-                left: 100vw;
-                width: 100vh;
-                height: 100vw;
-                transform: rotate(90deg);
-                transform-origin: top left;
-            }
-        }
-        /* 가로/세로 선택 라디오 */
-        .orientation-picker {
-            display: flex;
-            gap: 8px;
-            margin-top: 4px;
-        }
-        .orientation-picker label {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            background: #f9f9f9;
-            transition: all 0.15s;
-        }
-        .orientation-picker label.active {
-            border-color: #003478;
-            background: #e8f0ff;
-            color: #003478;
-            font-weight: 600;
-        }
-        .orientation-picker input[type="radio"] {
-            display: none;
-        }
 
         /* 메인 컨테이너 */
         .container {
@@ -1204,7 +1159,7 @@
         <!-- 헤더 -->
         <div class="header">
             <div>
-                <div class="header-title">📸 2026 평화·통일 체험학습</div>
+                <div class="header-title">DMZ 평화의 길</div>
             </div>
         </div>
 
@@ -1298,22 +1253,7 @@
                         <div id="editPlaceholder" style="color: #666; font-size: 14px; text-align: center;">촬영된 사진이 여기에 표시됩니다</div>
                     </div>
                     <div class="edit-form">
-                        <div class="form-group">
-                            <label class="form-label">학교명 학년 반 이름</label>
-                            <input type="text" id="studentName" class="form-input" placeholder="통일초등학교 6학년 1반 김평화" maxlength="40">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">📝 평화에 대한 한마디</label>
-                            <input type="text" id="studentMessage" class="form-input" placeholder="평화에 대한 한마디를 입력하세요" maxlength="30">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">📐 저장 방향</label>
-                            <div class="orientation-picker" id="orientationPicker">
-                                <label data-orient="auto" class="active"><input type="radio" name="saveOrient" value="auto" checked>🔄 자동</label>
-                                <label data-orient="portrait"><input type="radio" name="saveOrient" value="portrait">📱 세로</label>
-                                <label data-orient="landscape"><input type="radio" name="saveOrient" value="landscape">🖼️ 가로</label>
-                            </div>
-                        </div>
+                        <!-- 입력란 제거됨 (학교/이름, 메시지 입력 삭제) -->
                     </div>
                     <div class="action-buttons">
                         <button class="btn-primary primary" id="downloadBtn">📥 사진 저장</button>
@@ -1369,8 +1309,6 @@
             // 커스텀 프레임
             customFrameImage: null,  // Image 객체
             customFrameLoaded: false,
-            frameAspectRatio: 4/3,   // 프레임 가로/세로 비율 (기본 가로 4:3)
-            frameOrientation: 'landscape', // 'landscape' | 'portrait'
 
             // 프레임 갤러리 (앱 시작 시 Google Drive 폴더에서 자동 로드)
             frameGallery: [],
@@ -1392,8 +1330,7 @@
             cameraPlaceholder: document.getElementById('cameraPlaceholder'),
             shutterBtn: document.getElementById('shutterBtn'),
             flipBtn: document.getElementById('flipBtn'),
-            studentName: document.getElementById('studentName'),
-            studentMessage: document.getElementById('studentMessage'),
+            // studentName, studentMessage 입력란 제거됨
             downloadBtn: document.getElementById('downloadBtn'),
             uploadBtn: document.getElementById('uploadBtn'),
             retakeBtn: document.getElementById('retakeBtn'),
@@ -1430,19 +1367,6 @@
         // ============================================
         function init() {
             setupEventListeners();
-            // 화면 세로 고정 시도 (지원 브라우저만)
-            try {
-                if (screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('portrait').catch(()=>{});
-                }
-            } catch(e) {}
-            // 가로/세로 라디오 이벤트
-            document.querySelectorAll('#orientationPicker input').forEach(r => {
-                r.addEventListener('change', () => {
-                    document.querySelectorAll('#orientationPicker label').forEach(l => l.classList.remove('active'));
-                    r.parentElement.classList.add('active');
-                });
-            });
             initCamera();
 
             // Google Drive 폴더에서 프레임 목록 자동 로드
@@ -1510,9 +1434,7 @@
             // 권한 거부
             ui.retryBtn.addEventListener('click', initCamera);
 
-            // 학생 정보 저장
-            ui.studentName.addEventListener('change', saveStudentInfo);
-            ui.studentMessage.addEventListener('change', saveStudentMessage);
+            // 학생 정보 저장 리스너 제거됨 (입력란 삭제)
         }
 
         // ============================================
@@ -1523,17 +1445,11 @@
                 ui.permissionDenied.style.display = 'none';
                 ui.cameraPlaceholder.style.display = 'flex';
 
-                // 프레임 비율에 따라 캡처 해상도 동적 결정
-                const isPortrait = appState.frameAspectRatio < 1;
-                const idealW = isPortrait ? 960 : 1280;
-                const idealH = isPortrait ? 1280 : 960;
-
                 const constraints = {
                     video: {
                         facingMode: appState.facingMode,
-                        width: { ideal: idealW },
-                        height: { ideal: idealH },
-                        aspectRatio: { ideal: appState.frameAspectRatio }
+                        width: { ideal: 1280 },
+                        height: { ideal: 960 }
                     },
                     audio: false
                 };
@@ -1621,8 +1537,6 @@
             const dataUrl = ui.canvas.toDataURL('image/jpeg', appState.imageQuality);
             appState.currentPhoto = {
                 dataUrl: dataUrl,
-                studentName: ui.studentName.value,
-                studentMessage: ui.studentMessage.value,
                 theme: appState.currentTheme,
                 timestamp: new Date().toISOString()
             };
@@ -1654,8 +1568,6 @@
             ui.editImage.src = appState.currentPhoto.dataUrl;
             ui.editImage.style.display = 'block';
             document.getElementById('editPlaceholder').style.display = 'none';
-            ui.studentName.value = appState.currentPhoto.studentName || '';
-            ui.studentMessage.value = appState.currentPhoto.studentMessage || '';
 
             switchTab({ target: ui.tabBtns[2] });
         }
@@ -1663,20 +1575,14 @@
         // ============================================
         // 사진 다운로드
         // ============================================
-        async function downloadPhoto() {
+        function downloadPhoto() {
             if (!appState.currentPhoto) {
                 showStatus('촬영된 사진이 없습니다', 'error');
                 return;
             }
 
-            if (!ui.studentName.value.trim()) {
-                showStatus('학교명 학년 반 이름을 입력해주세요', 'error');
-                ui.studentName.focus();
-                return;
-            }
-
             const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
-            const dataUrl = await getOrientedDataUrl(appState.currentPhoto.dataUrl);
+            const dataUrl = appState.currentPhoto.dataUrl;
 
             // iOS Safari 대응: 새 탭에서 이미지 열기
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -1745,12 +1651,6 @@
                 return;
             }
 
-            if (!ui.studentName.value.trim()) {
-                showStatus('학교명 학년 반 이름을 입력해주세요', 'error');
-                ui.studentName.focus();
-                return;
-            }
-
             if (!appState.appsScriptUrl) {
                 showStatus('Apps Script URL이 설정되지 않았습니다', 'error');
                 return;
@@ -1760,9 +1660,8 @@
                 ui.uploadBtn.disabled = true;
                 ui.uploadBtn.innerHTML = '<span class="spinner"></span> 업로드 중...';
 
-                // 선택 방향 적용 후 업로드용 이미지 압축 (최대 1024px, 품질 0.6)
-                const orientedUrl = await getOrientedDataUrl(appState.currentPhoto.dataUrl);
-                const base64Image = await compressForUpload(orientedUrl, 1024, 0.6);
+                // 업로드용 이미지 압축 (최대 1024px, 품질 0.6)
+                const base64Image = await compressForUpload(appState.currentPhoto.dataUrl, 1024, 0.6);
 
                 const payload = {
                     action: 'uploadPhoto',
@@ -1770,8 +1669,8 @@
                     course: appState.course,
                     place: appState.place,
                     date: appState.date,
-                    studentName: ui.studentName.value || '이름 없음',
-                    message: ui.studentMessage.value || '',
+                    studentName: '',
+                    message: '',
                     imageData: base64Image,
                     theme: themes[appState.currentTheme].name
                 };
@@ -1802,9 +1701,8 @@
             appState.currentPhoto = null;
             ui.editImage.style.display = 'none';
             document.getElementById('editPlaceholder').style.display = '';
-            ui.studentName.value = '';
-            ui.studentMessage.value = '';
-            switchTab({ target: ui.tabBtns[1] });
+            // 다시 찍기 → 프레임 선택 탭으로 복귀 (프레임선택 → 촬영 → 편집 순서 유지)
+            switchTab({ target: ui.tabBtns[0] });
         }
 
         // ============================================
@@ -1817,41 +1715,20 @@
             }
 
             try {
-                // 선택 방향 적용 후 dataURL → File 변환
-                const orientedUrl = await getOrientedDataUrl(appState.currentPhoto.dataUrl);
-                const res = await fetch(orientedUrl);
-                const blob = await res.blob();
-                const fileName = `통일포토_${appState.team}_${appState.date}_${Date.now()}.jpg`;
-                const file = new File([blob], fileName, { type: 'image/jpeg' });
-
-                const shareData = {
-                    files: [file],
-                    title: '2026 평화·통일 체험학습',
-                    text: `${appState.place}에서 #2026평화통일 #체험학습`
-                };
-
-                // Web Share API Level 2 (파일 공유 가능)
-                if (navigator.canShare && navigator.canShare(shareData)) {
-                    await navigator.share(shareData);
-                    showStatus('✅ 공유 완료', 'success');
-                } else if (navigator.share) {
-                    // 파일 공유 미지원 — 텍스트/URL만 공유
+                if (navigator.share) {
                     await navigator.share({
-                        title: shareData.title,
-                        text: shareData.text,
+                        title: '2026 평화·통일 체험학습',
+                        text: `${appState.place}에서 촬영한 사진입니다.`,
                         url: window.location.href
                     });
-                    showStatus('💡 사진은 별도로 저장 후 첨부해주세요', 'info');
                 } else {
-                    // 폴백: 다운로드 후 SNS 앱에서 직접 첨부 안내
-                    downloadPhoto();
-                    showStatus('사진 저장 후 SNS 앱에서 첨부해주세요', 'info');
+                    // 링크 복사 폴백
+                    const shareUrl = window.location.href;
+                    await navigator.clipboard.writeText(shareUrl);
+                    showStatus('🔗 링크가 복사되었습니다', 'success');
                 }
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('공유 오류:', error);
-                    showStatus('공유 실패: ' + error.message, 'error');
-                }
+                console.error('공유 오류:', error);
             }
         }
 
@@ -1866,12 +1743,15 @@
         // 탭 전환
         // ============================================
         function switchTab(e) {
-            const tabName = e.currentTarget.dataset.tab;
+            // 실제 클릭 이벤트(currentTarget)와 수동 호출({target: btn}) 모두 지원
+            const el = (e && (e.currentTarget || e.target));
+            if (!el || !el.dataset) return;
+            const tabName = el.dataset.tab;
 
             ui.tabBtns.forEach(btn => btn.classList.remove('active'));
             ui.tabContents.forEach(content => content.classList.remove('active'));
 
-            e.currentTarget.classList.add('active');
+            el.classList.add('active');
             document.getElementById(tabName)?.classList.add('active');
         }
 
@@ -1891,22 +1771,7 @@
             }, 2500);
         }
 
-        // ============================================
-        // 학생 정보 저장
-        // ============================================
-        function saveStudentInfo() {
-            if (appState.currentPhoto) {
-                appState.currentPhoto.studentName = ui.studentName.value;
-            }
-            localStorage.setItem('studentName', ui.studentName.value);
-        }
-
-        function saveStudentMessage() {
-            if (appState.currentPhoto) {
-                appState.currentPhoto.studentMessage = ui.studentMessage.value;
-            }
-            localStorage.setItem('studentMessage', ui.studentMessage.value);
-        }
+        // 학생 정보 저장 함수 제거됨 (입력란 삭제)
 
         // ============================================
         // 프레임 갤러리 시스템
@@ -1998,31 +1863,6 @@
             loadCustomFrameImage(frame.directUrl);
         }
 
-        // 선택된 저장 방향으로 dataUrl 회전 (auto면 원본 그대로)
-        function getOrientedDataUrl(dataUrl) {
-            return new Promise((resolve) => {
-                const sel = document.querySelector('#orientationPicker input:checked');
-                const choice = sel ? sel.value : 'auto';
-                if (choice === 'auto') { resolve(dataUrl); return; }
-                const img = new Image();
-                img.onload = function() {
-                    const isLand = img.width >= img.height;
-                    const wantLand = (choice === 'landscape');
-                    if (isLand === wantLand) { resolve(dataUrl); return; }
-                    // 90도 회전
-                    const c = document.createElement('canvas');
-                    c.width = img.height;
-                    c.height = img.width;
-                    const ctx = c.getContext('2d');
-                    ctx.translate(c.width / 2, c.height / 2);
-                    ctx.rotate(Math.PI / 2);
-                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
-                    resolve(c.toDataURL('image/jpeg', appState.imageQuality));
-                };
-                img.src = dataUrl;
-            });
-        }
-
         // 업로드용 이미지 압축
         function compressForUpload(dataUrl, maxSize, quality) {
             return new Promise(resolve => {
@@ -2045,63 +1885,35 @@
         }
 
         // 커스텀 프레임 이미지 공통 로드
-        // 프레임 비율을 미리보기/캔버스 영역 CSS에 동적 적용
-        function applyFrameAspectRatio(ratio) {
-            const ratioStr = ratio.toFixed(4);
-            // 카메라 프리뷰 영역
-            const camContainer = document.querySelector('.camera-container');
-            if (camContainer) {
-                camContainer.style.aspectRatio = ratioStr;
-                camContainer.style.flex = '0 0 auto';
-                camContainer.style.width = '100%';
-                camContainer.style.maxHeight = '100%';
-                camContainer.style.margin = '0 auto';
-            }
-            // 편집 미리보기 영역
-            const editPreview = document.querySelector('.edit-preview');
-            if (editPreview) {
-                editPreview.style.aspectRatio = ratioStr;
-            }
-            // 비디오는 contain으로 바꿔서 비율 안 맞을 때 잘림 방지
-            if (ui.video) {
-                ui.video.style.objectFit = ratio < 1 ? 'cover' : 'cover';
-            }
-        }
-
         function loadCustomFrameImage(src) {
             const img = new Image();
             img.crossOrigin = 'anonymous';
 
-            const applyLoaded = async (loadedImg) => {
-                appState.customFrameImage = loadedImg;
+            img.onload = function() {
+                appState.customFrameImage = img;
                 appState.customFrameLoaded = true;
-                // 1) 프레임 PNG의 가로/세로 비율 자동 감지
-                const ratio = loadedImg.naturalWidth / loadedImg.naturalHeight;
-                appState.frameAspectRatio = ratio;
-                appState.frameOrientation = ratio < 1 ? 'portrait' : 'landscape';
                 ui.customFramePreview.src = src;
-                // 2) CSS 영역 비율 동적 적용
-                applyFrameAspectRatio(ratio);
                 updateFrameOverlay();
-                // 3) 카메라 재시작 — 새 비율에 맞는 해상도로 스트림 재요청
-                if (appState.mediaStream) {
-                    appState.mediaStream.getTracks().forEach(t => t.stop());
-                    appState.mediaStream = null;
-                }
-                await initCamera();
-                showStatus(`프레임이 적용되었습니다 (${appState.frameOrientation === 'portrait' ? '세로' : '가로'})`, 'success');
+                showStatus('프레임이 적용되었습니다', 'success');
                 setTimeout(() => {
                     switchTab({ target: ui.tabBtns[1] });
                 }, 500);
             };
 
-            img.onload = function() { applyLoaded(img); };
-
             img.onerror = function() {
                 // CORS 실패 시 crossOrigin 없이 재시도 (미리보기는 되지만 캔버스 합성 제한)
                 if (img.crossOrigin) {
                     const img2 = new Image();
-                    img2.onload = function() { applyLoaded(img2); };
+                    img2.onload = function() {
+                        appState.customFrameImage = img2;
+                        appState.customFrameLoaded = true;
+                        ui.customFramePreview.src = src;
+                        updateFrameOverlay();
+                        showStatus('프레임이 적용되었습니다', 'success');
+                        setTimeout(() => {
+                            switchTab({ target: ui.tabBtns[1] });
+                        }, 500);
+                    };
                     img2.onerror = function() {
                         appState.customFrameLoaded = false;
                         showStatus('프레임 이미지를 불러올 수 없습니다. 공유 설정을 확인해주세요.', 'error');
@@ -2144,11 +1956,7 @@
         // 저장된 정보 복원
         // ============================================
         function restoreSavedInfo() {
-            const savedName = localStorage.getItem('studentName');
-            const savedMessage = localStorage.getItem('studentMessage');
-
-            if (savedName) ui.studentName.value = savedName;
-            if (savedMessage) ui.studentMessage.value = savedMessage;
+            // 학생 정보 복원 제거됨 (입력란 삭제)
             // 프레임 갤러리는 init() → loadFramesFromServer()에서 처리
         }
 

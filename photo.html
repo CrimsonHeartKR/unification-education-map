@@ -1722,9 +1722,18 @@
                 const fileName = `강화DMZ_${appState.date}_${Date.now()}.jpg`;
                 const file = new File([blob], fileName, { type: 'image/jpeg' });
 
-                // 사진 파일만 공유 (장소/안내 문구·하이퍼링크 일절 포함하지 않음)
+                // 사진 파일 + 해시태그 자동 삽입 (URL/장소 문구는 포함하지 않음)
+                const hashtags = [
+                    '#DMZ평화의길',
+                    '#강화평화전망대코스',
+                    '#강화여행',
+                    '#평화역사투어',
+                    '#대룡시장화개정원',
+                    '#국내여행추천'
+                ].join(' ');
                 const shareData = {
-                    files: [file]
+                    files: [file],
+                    text: hashtags
                 };
 
                 // 2) Web Share API Level 2 — 파일 공유 가능 여부 확인
